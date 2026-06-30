@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, Enum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 import datetime
@@ -8,16 +7,16 @@ import enum
 
 class User(Base):
     __tablename__ = "users"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    password_hash = Column(String)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    username = Column(String(255), unique=True, index=True)
+    email = Column(String(255), unique=True, index=True)
+    password_hash = Column(String(255))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Product(Base):
     __tablename__ = "products"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, unique=True, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(255), unique=True, index=True)
     calories = Column(Float)
     proteins = Column(Float)
     fats = Column(Float)
@@ -26,24 +25,24 @@ class Product(Base):
 
 class Pantry(Base):
     __tablename__ = "pantry"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"))
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"))
+    product_id = Column(String(36), ForeignKey("products.id"))
     weight_g = Column(Float)
 
 class Recipe(Base):
     __tablename__ = "recipes"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    title = Column(String)
-    description = Column(String)
-    instruction = Column(String)
-    author_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String(255))
+    description = Column(String(1000))
+    instruction = Column(String(5000))
+    author_id = Column(String(36), ForeignKey("users.id"))
     is_public = Column(Boolean, default=True)
 
 class RecipeIngredient(Base):
     __tablename__ = "recipe_ingredients"
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), primary_key=True)
-    product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"), primary_key=True)
+    recipe_id = Column(String(36), ForeignKey("recipes.id"), primary_key=True)
+    product_id = Column(String(36), ForeignKey("products.id"), primary_key=True)
     weight_g = Column(Float)
 
 class MealType(enum.Enum):
@@ -54,19 +53,19 @@ class MealType(enum.Enum):
 
 class Menu(Base):
     __tablename__ = "menu"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"))
     date = Column(DateTime)
     meal_type = Column(Enum(MealType))
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"))
+    recipe_id = Column(String(36), ForeignKey("recipes.id"))
 
 class SharedAccess(Base):
     __tablename__ = "shared_access"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    shared_with_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=True)
-    menu_id = Column(UUID(as_uuid=True), ForeignKey("menu.id"), nullable=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    owner_id = Column(String(36), ForeignKey("users.id"))
+    shared_with_id = Column(String(36), ForeignKey("users.id"))
+    recipe_id = Column(String(36), ForeignKey("recipes.id"), nullable=True)
+    menu_id = Column(String(36), ForeignKey("menu.id"), nullable=True)
 
 class RequestStatus(enum.Enum):
     pending = "Pending"
@@ -75,9 +74,9 @@ class RequestStatus(enum.Enum):
 
 class CookingRequest(Base):
     __tablename__ = "cooking_requests"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    sender_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    receiver_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=True)
-    menu_id = Column(UUID(as_uuid=True), ForeignKey("menu.id"), nullable=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    sender_id = Column(String(36), ForeignKey("users.id"))
+    receiver_id = Column(String(36), ForeignKey("users.id"))
+    recipe_id = Column(String(36), ForeignKey("recipes.id"), nullable=True)
+    menu_id = Column(String(36), ForeignKey("menu.id"), nullable=True)
     status = Column(Enum(RequestStatus), default=RequestStatus.pending)
