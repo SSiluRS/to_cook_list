@@ -3,9 +3,9 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
-          Menu Planner
+          Планировщик меню
         </h1>
-        <p class="text-slate-400 text-sm mt-1">Plan your daily breakfasts, lunches, dinners, and snacks for the week.</p>
+        <p class="text-slate-400 text-sm mt-1">Планируйте свои ежедневные завтраки, обеды, ужины и перекусы на неделю вперед.</p>
       </div>
 
       <!-- Add to menu button -->
@@ -16,7 +16,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7-7H5" />
         </svg>
-        Schedule Meal
+        Запланировать
       </button>
     </div>
 
@@ -34,70 +34,84 @@
       <div 
         v-for="day in weekDays" 
         :key="day.dateStr"
-        class="p-6 rounded-2xl glass-panel flex flex-col md:flex-row md:items-start justify-between gap-6 border border-slate-800/40 relative overflow-hidden"
+        class="p-6 rounded-2xl glass-panel relative overflow-hidden"
       >
-        <!-- Date display -->
-        <div class="w-full md:w-48 shrink-0">
-          <h3 class="text-base font-bold text-slate-100">{{ day.dayName }}</h3>
-          <p class="text-xs text-brand-400 font-semibold mt-0.5">{{ day.dateFormatted }}</p>
+        <!-- Day header info -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800/40 pb-4 mb-4 gap-2">
+          <div>
+            <h2 class="font-extrabold text-base text-slate-100 capitalize">
+              {{ day.dayName }}
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5 font-bold uppercase tracking-wide">
+              {{ day.dateFormatted }}
+            </p>
+          </div>
+          
           <button 
             @click="openAddDialog(day.date)"
-            class="text-[10px] text-slate-500 hover:text-brand-400 font-bold uppercase tracking-wider mt-3 flex items-center gap-1"
+            class="px-3.5 py-1.5 rounded-lg border border-slate-850 hover:border-slate-800 bg-slate-900/30 hover:bg-slate-850 text-slate-400 hover:text-brand-400 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
           >
-            + Add to this day
+            + Добавить блюдо
           </button>
         </div>
 
-        <!-- Meals list for this day -->
-        <div class="flex-1 space-y-3">
-          <div v-if="day.meals.length === 0" class="text-slate-600 text-xs py-4 italic font-medium">
-            No meals planned for this day.
-          </div>
-          
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div 
-              v-for="meal in day.meals" 
-              :key="meal.id"
-              class="p-3.5 rounded-xl glass-card flex items-center justify-between gap-3 border border-slate-800/40"
-            >
-              <div class="truncate">
-                <div class="flex items-center gap-2">
-                  <span 
-                    class="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded border"
-                    :class="{
-                      'bg-amber-500/10 text-amber-400 border-amber-500/20': meal.meal_type === 'Breakfast',
-                      'bg-emerald-500/10 text-emerald-400 border-emerald-500/20': meal.meal_type === 'Lunch',
-                      'bg-indigo-500/10 text-indigo-400 border-indigo-500/20': meal.meal_type === 'Dinner',
-                      'bg-pink-500/10 text-pink-400 border-pink-500/20': meal.meal_type === 'Snack',
-                    }"
-                  >
-                    {{ meal.meal_type }}
-                  </span>
-                  
-                  <span 
-                    v-if="meal.recipe && meal.recipe.smart_match"
-                    class="text-[8px] uppercase font-bold tracking-wider px-1 rounded border"
-                    :class="meal.recipe.smart_match.can_cook 
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/15' 
-                      : 'bg-rose-500/10 text-rose-400 border-rose-500/15'"
-                  >
-                    {{ meal.recipe.smart_match.can_cook ? 'Ready' : 'Missing' }}
-                  </span>
+        <!-- Meals scheduled for this day -->
+        <div v-if="day.meals.length === 0" class="py-6 text-center text-slate-500 text-xs">
+          <p>Нет запланированных блюд на этот день.</p>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div 
+            v-for="meal in day.meals" 
+            :key="meal.id"
+            class="p-4 rounded-xl glass-card flex flex-col justify-between gap-3 relative border border-slate-850"
+          >
+            <div>
+              <!-- Meal type label -->
+              <span 
+                class="px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider block w-max mb-3"
+                :class="{
+                  'bg-amber-500/10 text-amber-400 border border-amber-500/20': meal.meal_type === 'Breakfast',
+                  'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20': meal.meal_type === 'Lunch',
+                  'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20': meal.meal_type === 'Dinner',
+                  'bg-pink-500/10 text-pink-400 border border-pink-500/20': meal.meal_type === 'Snack',
+                }"
+              >
+                {{ translateMealType(meal.meal_type) }}
+              </span>
+
+              <h4 class="font-bold text-slate-200 text-sm hover:text-brand-400 transition line-clamp-1">
+                <router-link :to="`/recipes/${meal.recipe_id}`">{{ meal.recipe_title }}</router-link>
+              </h4>
+
+              <!-- Recipe stats preview -->
+              <div v-if="meal.recipe && meal.recipe.total_kbju" class="text-[11px] text-slate-500 font-semibold mt-2.5 space-y-1">
+                <p>Калорийность: {{ Math.round(meal.recipe.total_kbju.calories) }} ккал</p>
+                <div class="flex gap-2">
+                  <span>Б: {{ meal.recipe.total_kbju.proteins }}г</span>
+                  <span>Ж: {{ meal.recipe.total_kbju.fats }}г</span>
+                  <span>У: {{ meal.recipe.total_kbju.carbohydrates }}г</span>
                 </div>
-
-                <h4 class="font-bold text-slate-200 text-sm mt-2 hover:text-brand-400 transition truncate">
-                  <router-link :to="`/recipes/${meal.recipe_id}`">{{ meal.recipe_title }}</router-link>
-                </h4>
               </div>
+            </div>
 
-              <!-- Delete button -->
+            <!-- Remove from menu button -->
+            <div class="flex justify-between items-center border-t border-slate-900 pt-3">
+              <span 
+                v-if="meal.recipe && meal.recipe.smart_match"
+                class="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border"
+                :class="meal.recipe.smart_match.can_cook 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                  : 'bg-slate-950 text-rose-400 border-rose-950/20'"
+              >
+                {{ meal.recipe.smart_match.can_cook ? 'Готово' : 'Не хватает' }}
+              </span>
+              
               <button 
                 @click="removeMeal(meal.id)"
-                class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-rose-400 transition"
+                class="text-xs text-slate-500 hover:text-rose-400 transition-colors font-medium ml-auto"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                Удалить
               </button>
             </div>
           </div>
@@ -105,44 +119,72 @@
       </div>
     </div>
 
-    <!-- Add Meal Dialog -->
-    <div v-if="showAddDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div class="w-full max-w-sm p-6 rounded-2xl glass-panel border border-slate-800/80 shadow-2xl">
-        <h3 class="text-lg font-bold text-slate-100 mb-4">Schedule Meal</h3>
+    <!-- Add Meal Modal -->
+    <div v-if="showAddDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="w-full max-w-md p-6 rounded-2xl glass-panel border border-slate-800/80 shadow-2xl relative animate-scale-in">
+        <h3 class="text-lg font-bold text-slate-100 mb-4">Запланировать новое блюдо</h3>
         
         <form @submit.prevent="addMeal" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Date</label>
-            <input v-model="addForm.date" type="date" required class="w-full px-4 py-3 rounded-xl glass-input text-sm" />
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Выберите дату</label>
+            <input 
+              v-model="addForm.date" 
+              type="date" 
+              required 
+              class="w-full px-4 py-3 rounded-xl glass-input text-sm font-semibold"
+            />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Meal Type</label>
-            <select v-model="addForm.meal_type" required class="w-full px-4 py-3 rounded-xl glass-input text-sm">
-              <option value="Breakfast">Breakfast</option>
-              <option value="Lunch">Lunch</option>
-              <option value="Dinner">Dinner</option>
-              <option value="Snack">Snack</option>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Прием пищи</label>
+            <select 
+              v-model="addForm.meal_type" 
+              required
+              class="w-full px-4 py-3 rounded-xl glass-input text-sm"
+            >
+              <option value="Breakfast">Завтрак</option>
+              <option value="Lunch">Обед</option>
+              <option value="Dinner">Ужин</option>
+              <option value="Snack">Перекус</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select Recipe</label>
-            <select v-model="addForm.recipe_id" required class="w-full px-4 py-3 rounded-xl glass-input text-sm">
-              <option value="" disabled>-- Select Recipe --</option>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Выберите рецепт</label>
+            <select 
+              v-model="addForm.recipe_id" 
+              required
+              class="w-full px-4 py-3 rounded-xl glass-input text-sm"
+            >
+              <option value="" disabled>-- Выберите рецепт --</option>
               <option 
                 v-for="rec in recipes" 
                 :key="rec.id" 
                 :value="rec.id"
               >
-                {{ rec.title }}
+                {{ rec.title }} ({{ rec.is_public ? 'Публичный' : 'Личный' }})
               </option>
             </select>
+            <p class="text-xs text-slate-500 mt-2 font-medium">
+              Не нашли нужный рецепт? 
+              <router-link to="/recipes" class="text-brand-400 hover:text-brand-300 font-semibold underline">Создать новый рецепт &rarr;</router-link>
+            </p>
           </div>
 
           <div class="flex justify-end gap-3 mt-6">
-            <button type="button" @click="showAddDialog = false" class="px-4 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800/40 text-slate-400 text-sm font-semibold transition">Cancel</button>
-            <button type="submit" class="px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-semibold">Schedule</button>
+            <button 
+              type="button" 
+              @click="showAddDialog = false"
+              class="px-4 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800/40 text-slate-400 hover:text-slate-200 text-sm font-semibold transition"
+            >
+              Отмена
+            </button>
+            <button 
+              type="submit" 
+              class="px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-semibold shadow-lg shadow-brand-800/25"
+            >
+              Запланировать
+            </button>
           </div>
         </form>
       </div>
@@ -157,34 +199,47 @@ import api from '../api'
 const loading = ref(true)
 const menuItems = ref([])
 const recipes = ref([])
+const weekDays = ref([])
 const error = ref(null)
 
 const showAddDialog = ref(false)
-const addForm = ref({ date: '', meal_type: 'Breakfast', recipe_id: '' })
+const addForm = ref({
+  date: '',
+  meal_type: 'Breakfast',
+  recipe_id: ''
+})
 
-// Generate next 7 days list starting from today
-const weekDays = ref([])
+const translateMealType = (type) => {
+  const translations = {
+    'Breakfast': 'Завтрак',
+    'Lunch': 'Обед',
+    'Dinner': 'Ужин',
+    'Snack': 'Перекус'
+  }
+  return translations[type] || type
+}
 
 const loadMenu = async () => {
   loading.value = true
   try {
+    // Generate dates for the current week starting from today
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    const endOfWeek = new Date(today)
-    endOfWeek.setDate(endOfWeek.getDate() + 7)
+    
+    const end = new Date(today)
+    end.setDate(end.getDate() + 7)
 
-    const menuRes = await api.get(`/api/v1/menu/?start_date=${today.toISOString()}&end_date=${endOfWeek.toISOString()}`)
+    const menuRes = await api.get(`/api/v1/menu/?start_date=${today.toISOString()}&end_date=${end.toISOString()}`)
     menuItems.value = menuRes.data
 
     const recipesRes = await api.get('/api/v1/recipes/')
     recipes.value = recipesRes.data
 
-    // Build the 7 days array
+    // Build the 7-day structure
     const days = []
     for (let i = 0; i < 7; i++) {
       const date = new Date(today)
-      date.setDate(today.getDate() + i)
-      
+      date.setDate(date.getDate() + i)
       const dateStr = date.toISOString().split('T')[0]
       
       const dayMeals = menuItems.value.filter(item => {
@@ -192,18 +247,21 @@ const loadMenu = async () => {
         return itemDateStr === dateStr
       })
 
+      const rawDayName = date.toLocaleDateString('ru-RU', { weekday: 'long' })
+      const capitalizedDayName = rawDayName.charAt(0).toUpperCase() + rawDayName.slice(1)
+
       days.push({
         date,
         dateStr,
-        dayName: date.toLocaleDateString('en-US', { weekday: 'long' }),
-        dateFormatted: date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }),
+        dayName: capitalizedDayName,
+        dateFormatted: date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }),
         meals: dayMeals
       })
     }
     
     weekDays.value = days
   } catch (err) {
-    error.value = 'Failed to load menu planner'
+    error.value = 'Не удалось загрузить планировщик меню'
   } finally {
     loading.value = false
   }
@@ -211,7 +269,6 @@ const loadMenu = async () => {
 
 const openAddDialog = (date) => {
   showAddDialog.value = true
-  // Format date to yyyy-mm-dd
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -234,7 +291,7 @@ const addMeal = async () => {
     showAddDialog.value = false
     await loadMenu()
   } catch (err) {
-    alert(err.response?.data?.detail || 'Failed to schedule meal')
+    alert(err.response?.data?.detail || 'Не удалось запланировать блюдо')
   }
 }
 
@@ -243,7 +300,7 @@ const removeMeal = async (id) => {
     await api.delete(`/api/v1/menu/${id}`)
     await loadMenu()
   } catch (err) {
-    error.value = 'Failed to delete menu item'
+    error.value = 'Не удалось удалить блюдо из меню'
   }
 }
 

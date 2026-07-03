@@ -3,9 +3,9 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
-          Culinary Recipes
+          Кулинарные рецепты
         </h1>
-        <p class="text-slate-400 text-sm mt-1">Browse public recipes, schedule meals, and see what you can cook from your pantry stock.</p>
+        <p class="text-slate-400 text-sm mt-1">Просматривайте публичные рецепты, планируйте меню и смотрите, что можно приготовить из имеющихся продуктов.</p>
       </div>
 
       <button 
@@ -15,7 +15,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7-7H5" />
         </svg>
-        Create Recipe
+        Создать рецепт
       </button>
     </div>
 
@@ -30,7 +30,7 @@
           ? 'bg-slate-800 border-slate-700 text-brand-400 font-bold' 
           : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'"
       >
-        {{ filter }} Recipes
+        {{ translateFilter(filter) }}
       </button>
     </div>
 
@@ -45,8 +45,8 @@
     </div>
 
     <div v-else-if="filteredRecipes.length === 0" class="py-16 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
-      <p class="text-base font-semibold text-slate-400">No recipes found</p>
-      <p class="text-sm text-slate-500 mt-1">Try creating one or selecting a different filter.</p>
+      <p class="text-base font-semibold text-slate-400">Рецепты не найдены</p>
+      <p class="text-sm text-slate-500 mt-1">Попробуйте создать новый рецепт или выбрать другой фильтр.</p>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -61,7 +61,7 @@
             class="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded bg-slate-900 border border-slate-800"
             :class="recipe.is_public ? 'text-emerald-400' : 'text-amber-400'"
           >
-            {{ recipe.is_public ? 'Public' : 'Private' }}
+            {{ recipe.is_public ? 'Публичный' : 'Личный' }}
           </span>
 
           <!-- Smart Match badge -->
@@ -72,7 +72,7 @@
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
               : 'bg-slate-900 text-slate-400 border-slate-800'"
           >
-            {{ recipe.smart_match.can_cook ? 'Ready' : `Match: ${recipe.smart_match.match_percentage}%` }}
+            {{ recipe.smart_match.can_cook ? 'Готово' : `Совпадение: ${recipe.smart_match.match_percentage}%` }}
           </span>
         </div>
 
@@ -85,23 +85,23 @@
           </router-link>
           
           <p class="text-xs text-slate-500 font-semibold">
-            By <span class="text-slate-400">@{{ recipe.author_username || 'anonymous' }}</span>
+            Автор: <span class="text-slate-400">@{{ recipe.author_username || 'аноним' }}</span>
           </p>
           
           <p class="text-slate-400 text-sm line-clamp-2 leading-relaxed">
-            {{ recipe.description || 'No description available.' }}
+            {{ recipe.description || 'Описание отсутствует.' }}
           </p>
         </div>
 
         <!-- Recipe KBJU summary row -->
         <div v-if="recipe.total_kbju" class="border-t border-slate-800/40 pt-4 flex justify-between items-center text-xs">
           <div class="text-slate-400 font-bold">
-            {{ Math.round(recipe.total_kbju.calories) }} <span class="text-[10px] text-slate-500 uppercase">kcal</span>
+            {{ Math.round(recipe.total_kbju.calories) }} <span class="text-[10px] text-slate-500 uppercase">ккал</span>
           </div>
           <div class="flex gap-2.5 text-slate-500 font-medium">
-            <span>P: <strong class="text-emerald-400 font-medium">{{ recipe.total_kbju.proteins }}g</strong></span>
-            <span>F: <strong class="text-amber-400 font-medium">{{ recipe.total_kbju.fats }}g</strong></span>
-            <span>C: <strong class="text-indigo-400 font-medium">{{ recipe.total_kbju.carbohydrates }}g</strong></span>
+            <span>Б: <strong class="text-emerald-400 font-medium">{{ recipe.total_kbju.proteins }}г</strong></span>
+            <span>Ж: <strong class="text-amber-400 font-medium">{{ recipe.total_kbju.fats }}г</strong></span>
+            <span>У: <strong class="text-indigo-400 font-medium">{{ recipe.total_kbju.carbohydrates }}г</strong></span>
           </div>
         </div>
       </div>
@@ -110,62 +110,62 @@
     <!-- Create Recipe Dialog -->
     <div v-if="showCreateDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div class="w-full max-w-2xl p-6 rounded-2xl glass-panel border border-slate-800/80 shadow-2xl relative my-8">
-        <h3 class="text-xl font-bold text-slate-100 mb-5">Create Custom Recipe</h3>
+        <h3 class="text-xl font-bold text-slate-100 mb-5">Создать рецепт</h3>
         
         <form @submit.prevent="saveRecipe" class="space-y-5">
           <!-- Text fields -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Recipe Title</label>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Название рецепта</label>
               <input 
                 v-model="newRecipe.title" 
                 type="text" 
                 required 
-                placeholder="e.g. Avocado Toast"
+                placeholder="например: Авокадо Тост"
                 class="w-full px-4 py-3 rounded-xl glass-input text-sm font-semibold"
               />
             </div>
             
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Short Description</label>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Краткое описание</label>
               <input 
                 v-model="newRecipe.description" 
                 type="text" 
-                placeholder="e.g. Simple healthy breakfast option"
+                placeholder="например: Простой и полезный завтрак"
                 class="w-full px-4 py-3 rounded-xl glass-input text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Cooking Instructions</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Инструкция по приготовлению</label>
             <textarea 
               v-model="newRecipe.instruction" 
               rows="3"
-              placeholder="e.g. 1. Toast bread. 2. Mash avocado and spread..."
+              placeholder="например: 1. Поджарить хлеб. 2. Разомкнуть авокадо и намазать..."
               class="w-full px-4 py-3 rounded-xl glass-input text-sm"
             ></textarea>
           </div>
 
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Visibility</span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Видимость</span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="newRecipe.is_public" class="sr-only peer">
               <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-500 peer-checked:after:bg-white"></div>
-              <span class="ml-3 text-sm font-medium text-slate-300">{{ newRecipe.is_public ? 'Public' : 'Private' }}</span>
+              <span class="ml-3 text-sm font-medium text-slate-300">{{ newRecipe.is_public ? 'Публичный' : 'Личный' }}</span>
             </label>
           </div>
 
           <!-- Dynamic Ingredients List -->
           <div class="border-t border-slate-800/40 pt-4">
             <div class="flex justify-between items-center mb-3">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ingredients</span>
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ингредиенты</span>
               <button 
                 type="button" 
                 @click="addIngredientRow"
                 class="text-xs text-brand-400 hover:text-brand-300 font-bold flex items-center gap-1"
               >
-                + Add Ingredient
+                + Добавить ингредиент
               </button>
             </div>
 
@@ -181,13 +181,13 @@
                   required
                   class="flex-1 px-3 py-2 rounded-xl glass-input text-xs font-semibold"
                 >
-                  <option value="" disabled>-- Select Ingredient --</option>
+                  <option value="" disabled>-- Выберите продукт --</option>
                   <option 
                     v-for="prod in products" 
                     :key="prod.id" 
                     :value="prod.id"
                   >
-                    {{ prod.name }} ({{ prod.calories }} kcal/100g)
+                    {{ prod.name }} ({{ Math.round(prod.calories) }} ккал/100г)
                   </option>
                 </select>
 
@@ -197,7 +197,7 @@
                   type="number" 
                   required
                   min="1"
-                  placeholder="Weight (g)"
+                  placeholder="Вес (г)"
                   class="w-28 px-3 py-2 rounded-xl glass-input text-xs font-semibold text-center"
                 />
 
@@ -217,12 +217,12 @@
 
           <!-- Live KBJU calculation preview -->
           <div class="p-4 rounded-xl bg-slate-900/30 border border-slate-850 flex justify-between items-center text-xs">
-            <span class="font-bold text-slate-400 uppercase tracking-wider">Live Preview (KBJU):</span>
+            <span class="font-bold text-slate-400 uppercase tracking-wider">Предпросмотр КБЖУ рецепта:</span>
             <div class="flex gap-4 font-semibold text-slate-300">
-              <span>Calories: <strong class="text-slate-100">{{ liveKbju.calories }}</strong> kcal</span>
-              <span>P: <strong class="text-emerald-400">{{ liveKbju.proteins }}g</strong></span>
-              <span>F: <strong class="text-amber-400">{{ liveKbju.fats }}g</strong></span>
-              <span>C: <strong class="text-indigo-400">{{ liveKbju.carbohydrates }}g</strong></span>
+              <span>Калории: <strong class="text-slate-100">{{ liveKbju.calories }} ккал</strong></span>
+              <span>Б: <strong class="text-emerald-400">{{ liveKbju.proteins }}г</strong></span>
+              <span>Ж: <strong class="text-amber-400">{{ liveKbju.fats }}г</strong></span>
+              <span>У: <strong class="text-indigo-400">{{ liveKbju.carbohydrates }}г</strong></span>
             </div>
           </div>
 
@@ -232,13 +232,13 @@
               @click="closeCreateDialog"
               class="px-4 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800/40 text-slate-400 hover:text-slate-200 text-sm font-semibold transition"
             >
-              Cancel
+              Отмена
             </button>
             <button 
               type="submit" 
               class="px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-semibold shadow-lg shadow-brand-800/25"
             >
-              Save Recipe
+              Сохранить
             </button>
           </div>
         </form>
@@ -268,6 +268,16 @@ const newRecipe = ref({
   is_public: true,
   ingredients: []
 })
+
+const translateFilter = (filter) => {
+  const translations = {
+    'All': 'Все рецепты',
+    'My': 'Мои рецепты',
+    'Shared': 'Доступные мне',
+    'Public': 'Публичные рецепты'
+  }
+  return translations[filter] || filter
+}
 
 // Filter recipes according to activeFilter
 const filteredRecipes = computed(() => {
@@ -313,7 +323,7 @@ const loadRecipes = async () => {
     const productsRes = await api.get('/api/v1/products/')
     products.value = productsRes.data
   } catch (err) {
-    error.value = 'Failed to load recipes data'
+    error.value = 'Не удалось загрузить каталог рецептов'
   } finally {
     loading.value = false
   }
@@ -342,7 +352,7 @@ const saveRecipe = async () => {
   // Validate ingredients are not empty
   const validIngredients = newRecipe.value.ingredients.filter(i => i.product_id && i.weight_g > 0)
   if (validIngredients.length === 0) {
-    error.value = 'You must add at least one valid ingredient with weight.'
+    error.value = 'Вы должны добавить хотя бы один ингредиент с весом.'
     return
   }
   
@@ -355,7 +365,7 @@ const saveRecipe = async () => {
     recipes.value.push(response.data)
     closeCreateDialog()
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Failed to save recipe'
+    error.value = err.response?.data?.detail || 'Не удалось сохранить рецепт'
   }
 }
 
