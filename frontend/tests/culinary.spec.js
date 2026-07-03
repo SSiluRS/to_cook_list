@@ -37,6 +37,35 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.waitForTimeout(1000); // Wait for modal close and list update
   await expect(page.locator('table')).toContainText(productName);
 
+  // 3b. Test searching product from Internet and importing it
+  await page.route('**/api/v1/products/search-external*', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          name: 'Филе курица',
+          calories: 110.0,
+          proteins: 23.0,
+          fats: 1.2,
+          carbohydrates: 0.0
+        }
+      ])
+    });
+  });
+
+  await page.click('button:has-text("Поиск в Интернете")');
+  await page.fill('input[placeholder*="творог"]', 'филе курица');
+  await page.click('form button:has-text("Найти")');
+  await expect(page.locator('table')).toContainText('курица', { timeout: 10000 });
+  await page.click('table button:has-text("+ Добавить")');
+  await page.waitForSelector('h3:has-text("Создать/Импортировать продукт")');
+  const importedName = `Импорт Курица ${Date.now()}`;
+  await page.fill('input[placeholder="например: Авокадо"]', importedName);
+  await page.click('form button:has-text("Сохранить")');
+  await page.waitForTimeout(1000);
+  await expect(page.locator('table')).toContainText(importedName);
+
   // 4. Add product to Pantry
   await page.click('a[href="/pantry"]');
   await expect(page).toHaveURL(/\/pantry/);
