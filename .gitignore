@@ -22,3 +22,6 @@ dist-ssr/
 .vscode/
 *.swp
 *.swo
+
+# AI Agents
+.agents/
