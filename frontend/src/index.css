@@ -57,6 +57,12 @@ body {
   transition: all 0.2s ease;
 }
 
+/* Fix browser select dropdown white-on-white text bug */
+.glass-input option, select option {
+  background-color: #111418;
+  color: #f1f5f9;
+}
+
 .glass-input:focus {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(184, 127, 98, 0.5);
