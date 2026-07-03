@@ -19,71 +19,188 @@
       </button>
     </div>
 
-    <!-- Filter and Search Row -->
-    <div class="flex items-center gap-4 max-w-md">
-      <div class="relative flex-1">
-        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    <!-- Tab navigation -->
+    <div class="flex items-center gap-4 border-b border-slate-800/40 pb-4">
+      <button 
+        @click="switchTab('local')"
+        class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition border"
+        :class="activeTab === 'local' 
+          ? 'bg-slate-800 border-slate-700 text-brand-400 font-bold' 
+          : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'"
+      >
+        Локальный каталог
+      </button>
+      <button 
+        @click="switchTab('external')"
+        class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition border"
+        :class="activeTab === 'external' 
+          ? 'bg-slate-800 border-slate-700 text-brand-400 font-bold' 
+          : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'"
+      >
+        Поиск в Интернете
+      </button>
+    </div>
+
+    <!-- Local Catalog Tab -->
+    <div v-if="activeTab === 'local'" class="space-y-6">
+      <!-- Filter and Search Row -->
+      <div class="flex items-center gap-4 max-w-md">
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </span>
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="Поиск в локальном каталоге..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs font-semibold"
+          />
+        </div>
+      </div>
+
+      <!-- Alert Banner -->
+      <div v-if="error" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm">
+        {{ error }}
+      </div>
+
+      <!-- Products List -->
+      <div class="glass-panel rounded-2xl overflow-hidden">
+        <div v-if="loading" class="py-12 flex justify-center">
+          <span class="w-8 h-8 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></span>
+        </div>
+
+        <div v-else-if="filteredProducts.length === 0" class="py-16 text-center text-slate-500">
+          <p class="text-base font-semibold text-slate-400">Продукты не найдены</p>
+          <p class="text-sm text-slate-500 mt-1">Попробуйте изменить поисковый запрос или добавьте новый продукт.</p>
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800/60 bg-slate-900/20 text-xs uppercase tracking-wider font-semibold text-slate-400">
+                <th class="p-4 pl-6">Название продукта</th>
+                <th class="p-4">Калорийность (100г)</th>
+                <th class="p-4">Белки (100г)</th>
+                <th class="p-4">Жиры (100г)</th>
+                <th class="p-4 pr-6">Углеводы (100г)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
+              <tr 
+                v-for="prod in filteredProducts" 
+                :key="prod.id"
+                class="hover:bg-slate-900/20 transition-colors"
+              >
+                <td class="p-4 pl-6 font-bold text-slate-200">{{ prod.name }}</td>
+                <td class="p-4 font-medium">{{ Math.round(prod.calories) }} ккал</td>
+                <td class="p-4 text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
+                <td class="p-4 text-amber-400 font-semibold">{{ prod.fats }}г</td>
+                <td class="p-4 pr-6 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- External Internet Search Tab -->
+    <div v-else-if="activeTab === 'external'" class="space-y-6">
+      <div class="p-5 rounded-2xl bg-slate-900/20 border border-slate-850">
+        <h3 class="font-bold text-slate-200 text-sm mb-2">Поиск по открытой базе Open Food Facts</h3>
+        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+          Вы можете найти любой продукт в интернете, отредактировать его параметры КБЖУ под свои нужды и импортировать в ваш личный каталог.
+        </p>
+
+        <!-- Search Bar with Go button -->
+        <form @submit.prevent="searchExternal" class="flex gap-3 max-w-lg">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+            </span>
+            <input 
+              v-model="externalQuery" 
+              type="text" 
+              placeholder="Введите название продукта (например: творог 5%)..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs font-semibold"
+              required
+            />
+          </div>
+          <button 
+            type="submit"
+            :disabled="loadingExternal"
+            class="px-5 py-2.5 rounded-xl gradient-btn text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shrink-0"
+          >
+            <span v-if="loadingExternal" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span>Найти</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Alert Banner -->
+      <div v-if="error" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm">
+        {{ error }}
+      </div>
+
+      <!-- External Search Results -->
+      <div class="glass-panel rounded-2xl overflow-hidden">
+        <div v-if="loadingExternal" class="py-12 flex justify-center">
+          <span class="w-8 h-8 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></span>
+        </div>
+
+        <div v-else-if="externalProducts.length === 0" class="py-16 text-center text-slate-500">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-slate-600 mb-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        </span>
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="Поиск продуктов..."
-          class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs font-semibold"
-        />
+          <p class="text-base font-semibold text-slate-400">Результаты поиска отсутствуют</p>
+          <p class="text-sm text-slate-500 mt-1">Введите поисковый запрос выше, чтобы найти продукты из интернета.</p>
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800/60 bg-slate-900/20 text-xs uppercase tracking-wider font-semibold text-slate-400">
+                <th class="p-4 pl-6">Продукт (из Интернета)</th>
+                <th class="p-4">Калорийность (100г)</th>
+                <th class="p-4">Белки (100г)</th>
+                <th class="p-4">Жиры (100г)</th>
+                <th class="p-4">Углеводы (100г)</th>
+                <th class="p-4 pr-6 text-right">Действие</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
+              <tr 
+                v-for="(prod, idx) in externalProducts" 
+                :key="idx"
+                class="hover:bg-slate-900/20 transition-colors"
+              >
+                <td class="p-4 pl-6 font-bold text-slate-200 line-clamp-1 max-w-[280px]" :title="prod.name">{{ prod.name }}</td>
+                <td class="p-4 font-medium">{{ prod.calories }} ккал</td>
+                <td class="p-4 text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
+                <td class="p-4 text-amber-400 font-semibold">{{ prod.fats }}г</td>
+                <td class="p-4 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
+                <td class="p-4 pr-6 text-right">
+                  <button 
+                    @click="importProduct(prod)"
+                    class="px-3 py-1.5 rounded-lg border border-slate-800 hover:border-brand-500 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 text-xs font-semibold transition"
+                  >
+                    + Добавить
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- Alert Banner -->
-    <div v-if="error" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm">
-      {{ error }}
-    </div>
-
-    <!-- Products List -->
-    <div class="glass-panel rounded-2xl overflow-hidden">
-      <div v-if="loading" class="py-12 flex justify-center">
-        <span class="w-8 h-8 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></span>
-      </div>
-
-      <div v-else-if="filteredProducts.length === 0" class="py-16 text-center text-slate-500">
-        <p class="text-base font-semibold text-slate-400">Продукты не найдены</p>
-        <p class="text-sm text-slate-500 mt-1">Попробуйте изменить поисковый запрос или добавьте новый продукт.</p>
-      </div>
-
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-slate-800/60 bg-slate-900/20 text-xs uppercase tracking-wider font-semibold text-slate-400">
-              <th class="p-4 pl-6">Название продукта</th>
-              <th class="p-4">Калорийность (100г)</th>
-              <th class="p-4">Белки (100г)</th>
-              <th class="p-4">Жиры (100г)</th>
-              <th class="p-4 pr-6">Углеводы (100г)</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
-            <tr 
-              v-for="prod in filteredProducts" 
-              :key="prod.id"
-              class="hover:bg-slate-900/20 transition-colors"
-            >
-              <td class="p-4 pl-6 font-bold text-slate-200">{{ prod.name }}</td>
-              <td class="p-4 font-medium">{{ Math.round(prod.calories) }} ккал</td>
-              <td class="p-4 text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
-              <td class="p-4 text-amber-400 font-semibold">{{ prod.fats }}г</td>
-              <td class="p-4 pr-6 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Create Product Modal -->
+    <!-- Create / Edit Product Modal -->
     <div v-if="showAddDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
       <div class="w-full max-w-md p-6 rounded-2xl glass-panel border border-slate-800/80 shadow-2xl relative">
-        <h3 class="text-lg font-bold text-slate-100 mb-4">Создать новый продукт</h3>
+        <h3 class="text-lg font-bold text-slate-100 mb-4">Создать/Импортировать продукт</h3>
         
         <form @submit.prevent="createProduct" class="space-y-4">
           <div>
@@ -172,9 +289,13 @@
 import { ref, onMounted, computed } from 'vue'
 import api from '../api'
 
+const activeTab = ref('local')
 const loading = ref(true)
+const loadingExternal = ref(false)
 const products = ref([])
+const externalProducts = ref([])
 const searchQuery = ref('')
+const externalQuery = ref('')
 const error = ref(null)
 
 const showAddDialog = ref(false)
@@ -199,10 +320,36 @@ const loadProducts = async () => {
     const res = await api.get('/api/v1/products/')
     products.value = res.data
   } catch (err) {
-    error.value = 'Не удалось загрузить каталог продуктов'
+    error.value = 'Не удалось загрузить локальный каталог продуктов'
   } finally {
     loading.value = false
   }
+}
+
+const searchExternal = async () => {
+  if (!externalQuery.value.trim()) return
+  loadingExternal.value = true
+  error.value = null
+  try {
+    const res = await api.get(`/api/v1/products/search-external?query=${encodeURIComponent(externalQuery.value.trim())}`)
+    externalProducts.value = res.data
+  } catch (err) {
+    error.value = 'Ошибка при поиске в базе данных продуктов. Попробуйте еще раз.'
+  } finally {
+    loadingExternal.value = false
+  }
+}
+
+const importProduct = (extProd) => {
+  newProduct.value = {
+    name: extProd.name,
+    calories: extProd.calories,
+    proteins: extProd.proteins,
+    fats: extProd.fats,
+    carbohydrates: extProd.carbohydrates,
+    is_public: true
+  }
+  showAddDialog.value = true
 }
 
 const createProduct = async () => {
@@ -210,9 +357,16 @@ const createProduct = async () => {
     const res = await api.post('/api/v1/products/', newProduct.value)
     products.value.push(res.data)
     closeAddDialog()
+    activeTab.value = 'local'
+    searchQuery.value = newProduct.value.name
   } catch (err) {
-    error.value = 'Не удалось создать продукт. Убедитесь, что название уникально.'
+    error.value = 'Не удалось импортировать/создать продукт. Убедитесь, что название уникально.'
   }
+}
+
+const switchTab = (tab) => {
+  activeTab.value = tab
+  error.value = null
 }
 
 const closeAddDialog = () => {
