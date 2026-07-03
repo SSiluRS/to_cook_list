@@ -13,14 +13,18 @@ def get_pantry(db: Session = Depends(database.get_db), current_user: models.User
 def update_pantry_item(item: schemas_pantry.PantryCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     # Check if item exists
     pantry_item = db.query(models.Pantry).filter(
-        models.Pantry.user_id == current_user.id,
-        models.Pantry.product_id == item.product_id
+        models.Pantry.user_id == str(current_user.id),
+        models.Pantry.product_id == str(item.product_id)
     ).first()
     
     if pantry_item:
         pantry_item.weight_g = item.weight_g
     else:
-        pantry_item = models.Pantry(user_id=current_user.id, **item.dict())
+        pantry_item = models.Pantry(
+            user_id=str(current_user.id),
+            product_id=str(item.product_id),
+            weight_g=item.weight_g
+        )
         db.add(pantry_item)
     
     db.commit()

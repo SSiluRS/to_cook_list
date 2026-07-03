@@ -37,6 +37,14 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.waitForTimeout(1000); // Wait for modal close and list update
   await expect(page.locator('table')).toContainText(productName);
 
+  // Edit the newly created product
+  await page.click(`tr:has-text("${productName}") button:has-text("Редактировать")`);
+  await page.waitForSelector('h3:has-text("Редактировать продукт")');
+  await page.fill('input[placeholder="160"]', '95');
+  await page.click('form button:has-text("Обновить")');
+  await page.waitForTimeout(1000);
+  await expect(page.locator('table')).toContainText('95 ккал');
+
   // 3b. Test searching product from Internet and importing it
   await page.route('**/api/v1/products/search-external*', async route => {
     await route.fulfill({
@@ -106,4 +114,12 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.click('a[href="/dashboard"]');
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.getByText(recipeName)).toBeVisible();
+
+  // 9. Try deleting the product (should fail because it is in use)
+  await page.click('a[href="/products"]');
+  await expect(page).toHaveURL(/\/products/);
+  page.once('dialog', dialog => dialog.accept());
+  await page.click(`tr:has-text("${productName}") button:has-text("Удалить")`);
+  await page.waitForTimeout(1000);
+  await expect(page.locator('.bg-rose-500\\/10')).toContainText('используется в кладовой или в рецептах');
 });

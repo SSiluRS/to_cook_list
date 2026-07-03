@@ -84,7 +84,8 @@
                 <th class="p-4">Калорийность (100г)</th>
                 <th class="p-4">Белки (100г)</th>
                 <th class="p-4">Жиры (100г)</th>
-                <th class="p-4 pr-6">Углеводы (100г)</th>
+                <th class="p-4">Углеводы (100г)</th>
+                <th class="p-4 pr-6 text-right">Действие</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
@@ -97,7 +98,21 @@
                 <td class="p-4 font-medium">{{ Math.round(prod.calories) }} ккал</td>
                 <td class="p-4 text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
                 <td class="p-4 text-amber-400 font-semibold">{{ prod.fats }}г</td>
-                <td class="p-4 pr-6 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
+                <td class="p-4 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
+                <td class="p-4 pr-6 text-right space-x-2">
+                  <button 
+                    @click="editProduct(prod)"
+                    class="px-3 py-1.5 rounded-lg border border-slate-800 hover:border-brand-500 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 text-xs font-semibold transition"
+                  >
+                    Редактировать
+                  </button>
+                  <button 
+                    @click="deleteProduct(prod.id)"
+                    class="px-3 py-1.5 rounded-lg border border-slate-800 hover:border-rose-950 text-slate-400 hover:text-rose-400 hover:bg-rose-950/15 transition"
+                  >
+                    Удалить
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -200,9 +215,11 @@
     <!-- Create / Edit Product Modal -->
     <div v-if="showAddDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
       <div class="w-full max-w-md p-6 rounded-2xl glass-panel border border-slate-800/80 shadow-2xl relative">
-        <h3 class="text-lg font-bold text-slate-100 mb-4">Создать/Импортировать продукт</h3>
+        <h3 class="text-lg font-bold text-slate-100 mb-4">
+          {{ isEditing ? 'Редактировать продукт' : 'Создать/Импортировать продукт' }}
+        </h3>
         
-        <form @submit.prevent="createProduct" class="space-y-4">
+        <form @submit.prevent="saveProduct" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Название продукта</label>
             <input 
@@ -276,7 +293,7 @@
               type="submit" 
               class="px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-semibold shadow-lg shadow-brand-800/25"
             >
-              Сохранить
+              {{ isEditing ? 'Обновить' : 'Сохранить' }}
             </button>
           </div>
         </form>
@@ -299,6 +316,9 @@ const externalQuery = ref('')
 const error = ref(null)
 
 const showAddDialog = ref(false)
+const isEditing = ref(false)
+const editingProductId = ref(null)
+
 const newProduct = ref({
   name: '',
   calories: null,
@@ -341,6 +361,8 @@ const searchExternal = async () => {
 }
 
 const importProduct = (extProd) => {
+  isEditing.value = false
+  editingProductId.value = null
   newProduct.value = {
     name: extProd.name,
     calories: extProd.calories,
@@ -352,15 +374,50 @@ const importProduct = (extProd) => {
   showAddDialog.value = true
 }
 
-const createProduct = async () => {
+const deleteProduct = async (productId) => {
+  if (!confirm('Вы уверены, что хотите удалить этот продукт из справочника?')) return
+  error.value = null
   try {
-    const res = await api.post('/api/v1/products/', newProduct.value)
-    products.value.push(res.data)
-    closeAddDialog()
-    activeTab.value = 'local'
-    searchQuery.value = newProduct.value.name
+    await api.delete(`/api/v1/products/${productId}`)
+    products.value = products.value.filter(p => p.id !== productId)
   } catch (err) {
-    error.value = 'Не удалось импортировать/создать продукт. Убедитесь, что название уникально.'
+    const errorMsg = err.response?.data?.detail || 'Не удалось удалить продукт. Возможно, он используется в рецептах или в вашей кладовой.'
+    error.value = errorMsg
+  }
+}
+
+const editProduct = (prod) => {
+  isEditing.value = true
+  editingProductId.value = prod.id
+  newProduct.value = {
+    name: prod.name,
+    calories: prod.calories,
+    proteins: prod.proteins,
+    fats: prod.fats,
+    carbohydrates: prod.carbohydrates,
+    is_public: prod.is_public
+  }
+  showAddDialog.value = true
+}
+
+const saveProduct = async () => {
+  try {
+    if (isEditing.value) {
+      const res = await api.put(`/api/v1/products/${editingProductId.value}`, newProduct.value)
+      const index = products.value.findIndex(p => p.id === editingProductId.value)
+      if (index !== -1) {
+        products.value[index] = res.data
+      }
+      closeAddDialog()
+    } else {
+      const res = await api.post('/api/v1/products/', newProduct.value)
+      products.value.push(res.data)
+      closeAddDialog()
+      activeTab.value = 'local'
+      searchQuery.value = newProduct.value.name
+    }
+  } catch (err) {
+    error.value = 'Не удалось сохранить продукт. Убедитесь, что название уникально.'
   }
 }
 
@@ -371,6 +428,8 @@ const switchTab = (tab) => {
 
 const closeAddDialog = () => {
   showAddDialog.value = false
+  isEditing.value = false
+  editingProductId.value = null
   newProduct.value = {
     name: '',
     calories: null,
