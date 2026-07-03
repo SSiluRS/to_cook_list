@@ -28,9 +28,23 @@ def _normalize(text: str) -> str:
     return text
 
 
+def _common_prefix_len(a: str, b: str) -> int:
+    """Return the length of the common prefix between two strings."""
+    i = 0
+    while i < len(a) and i < len(b) and a[i] == b[i]:
+        i += 1
+    return i
+
+
 def _relevance_score(query: str, name: str) -> float:
     """Return a relevance score between 0.0 (no match) and 1.0 (perfect match).
-    Uses token overlap plus substring bonus.
+
+    Scoring strategy:
+    - Exact match → 1.0
+    - Query is a substring of name → 0.6 base
+    - Name starts with query → extra 0.15
+    - Token overlap (Jaccard) → up to 0.4
+    - Stem/prefix overlap per token → up to 0.3
     """
     q = _normalize(query)
     n = _normalize(name)
@@ -44,34 +58,65 @@ def _relevance_score(query: str, name: str) -> float:
 
     score = 0.0
 
-    # Substring bonus: query is contained in name or vice versa
+    # Substring bonus: query text appears in the product name
     if q in n:
-        score += 0.5
+        score += 0.6
+        # Extra bonus if name starts with the query
+        if n.startswith(q):
+            score += 0.15
     elif n in q:
-        score += 0.4
+        score += 0.3
 
-    # Token overlap (Jaccard-like)
-    q_tokens = set(q.split())
-    n_tokens = set(n.split())
+    # Token-based matching
+    q_tokens = q.split()
+    n_tokens = n.split()
+
     if q_tokens and n_tokens:
-        intersection = q_tokens & n_tokens
-        union = q_tokens | n_tokens
-        jaccard = len(intersection) / len(union)
-        score += 0.5 * jaccard
+        # Exact token overlap (Jaccard)
+        q_set = set(q_tokens)
+        n_set = set(n_tokens)
+        intersection = q_set & n_set
+        union = q_set | n_set
+        if union:
+            jaccard = len(intersection) / len(union)
+            score += 0.4 * jaccard
+
+        # Stem/prefix matching: for each query token, find best prefix match
+        # in name tokens. This catches "картофель" matching "картофельное" etc.
+        if not intersection:
+            prefix_scores = []
+            for qt in q_tokens:
+                best = 0.0
+                for nt in n_tokens:
+                    # Check if one is a prefix of the other (stem match)
+                    cp = _common_prefix_len(qt, nt)
+                    min_len = min(len(qt), len(nt))
+                    if min_len > 0 and cp >= min(4, min_len):
+                        # Prefix covers at least 4 chars or full shorter word
+                        ratio = cp / max(len(qt), len(nt))
+                        best = max(best, ratio)
+                prefix_scores.append(best)
+            if prefix_scores:
+                avg_prefix = sum(prefix_scores) / len(prefix_scores)
+                score += 0.3 * avg_prefix
 
     return min(score, 1.0)
 
 
 # ---------------------------------------------------------------------------
-# Provider: Open Food Facts
+# Provider: Open Food Facts (world — tags_lc=ru for better cyrillic search)
 # ---------------------------------------------------------------------------
 
 def _search_openfoodfacts(query: str) -> List[Dict]:
-    """Search Open Food Facts (Russian locale)"""
+    """Search Open Food Facts with tags locale set to Russian."""
     if not query:
         return []
     encoded = urllib.parse.quote_plus(query.strip())
-    url = f"https://world.openfoodfacts.org/cgi/search.pl?search_terms={encoded}&search_simple=1&action=process&json=1&page_size=25&lc=ru"
+    url = (
+        f"https://world.openfoodfacts.org/cgi/search.pl?"
+        f"search_terms={encoded}&search_simple=1&action=process"
+        f"&json=1&page_size=50&lc=ru&tags_lc=ru"
+    )
     req = urllib.request.Request(url, headers={'User-Agent': 'CulinaryNavigator/1.0'})
     try:
         with urllib.request.urlopen(req, timeout=8) as response:
@@ -80,38 +125,11 @@ def _search_openfoodfacts(query: str) -> List[Dict]:
             data = json.loads(response.read().decode('utf-8'))
     except Exception:
         return []
-    results = []
-    for prod in data.get('products', []):
-        name = prod.get('product_name_ru') or prod.get('product_name')
-        if not name:
-            continue
-        nutr = prod.get('nutriments', {})
-        calories = nutr.get('energy-kcal_100g')
-        if calories is None:
-            energy = nutr.get('energy_100g')
-            if energy is not None:
-                try:
-                    calories = float(energy) / 4.184
-                except Exception:
-                    calories = 0.0
-            else:
-                calories = 0.0
-        proteins = nutr.get('proteins_100g') or 0.0
-        fats = nutr.get('fat_100g') or nutr.get('fats_100g') or 0.0
-        carbs = nutr.get('carbohydrates_100g') or 0.0
-        results.append({
-            'name': str(name).strip()[:100],
-            'calories': round(float(calories), 1),
-            'proteins': round(float(proteins), 1),
-            'fats': round(float(fats), 1),
-            'carbohydrates': round(float(carbs), 1),
-            '_source': 'openfoodfacts',
-        })
-    return results
+    return _parse_off_products(data)
 
 
 # ---------------------------------------------------------------------------
-# Provider: Open Food Facts (Russian subdomain — better for cyrillic queries)
+# Provider: Open Food Facts (Russian subdomain)
 # ---------------------------------------------------------------------------
 
 def _search_openfoodfacts_ru(query: str) -> List[Dict]:
@@ -119,7 +137,11 @@ def _search_openfoodfacts_ru(query: str) -> List[Dict]:
     if not query:
         return []
     encoded = urllib.parse.quote_plus(query.strip())
-    url = f"https://ru.openfoodfacts.org/cgi/search.pl?search_terms={encoded}&search_simple=1&action=process&json=1&page_size=25&lc=ru"
+    url = (
+        f"https://ru.openfoodfacts.org/cgi/search.pl?"
+        f"search_terms={encoded}&search_simple=1&action=process"
+        f"&json=1&page_size=50&lc=ru&tags_lc=ru"
+    )
     req = urllib.request.Request(url, headers={'User-Agent': 'CulinaryNavigator/1.0'})
     try:
         with urllib.request.urlopen(req, timeout=8) as response:
@@ -128,10 +150,21 @@ def _search_openfoodfacts_ru(query: str) -> List[Dict]:
             data = json.loads(response.read().decode('utf-8'))
     except Exception:
         return []
+    return _parse_off_products(data, source='openfoodfacts_ru')
+
+
+def _parse_off_products(data: dict, source: str = 'openfoodfacts') -> List[Dict]:
+    """Parse Open Food Facts API response into our standard product format."""
     results = []
     for prod in data.get('products', []):
-        name = prod.get('product_name_ru') or prod.get('product_name')
-        if not name:
+        # Try multiple name fields, prefer Russian
+        name = (
+            prod.get('product_name_ru')
+            or prod.get('product_name')
+            or prod.get('generic_name_ru')
+            or prod.get('generic_name')
+        )
+        if not name or not name.strip():
             continue
         nutr = prod.get('nutriments', {})
         calories = nutr.get('energy-kcal_100g')
@@ -147,13 +180,25 @@ def _search_openfoodfacts_ru(query: str) -> List[Dict]:
         proteins = nutr.get('proteins_100g') or 0.0
         fats = nutr.get('fat_100g') or nutr.get('fats_100g') or 0.0
         carbs = nutr.get('carbohydrates_100g') or 0.0
+
+        # Also store categories for extra relevance hints
+        categories = (
+            prod.get('categories_tags_ru')
+            or prod.get('categories')
+            or prod.get('categories_tags')
+            or ''
+        )
+        if isinstance(categories, list):
+            categories = ' '.join(categories)
+
         results.append({
             'name': str(name).strip()[:100],
             'calories': round(float(calories), 1),
             'proteins': round(float(proteins), 1),
             'fats': round(float(fats), 1),
             'carbohydrates': round(float(carbs), 1),
-            '_source': 'openfoodfacts_ru',
+            '_source': source,
+            '_categories': str(categories).lower(),
         })
     return results
 
@@ -193,12 +238,13 @@ def _search_usda(query: str) -> List[Dict]:
             'fats': round(float(fats), 1),
             'carbohydrates': round(float(carbs), 1),
             '_source': 'usda',
+            '_categories': '',
         })
     return results
 
 
 # ---------------------------------------------------------------------------
-# Provider: Calorizator.ru (scrape-like JSON endpoint for Russian products)
+# Provider: Calorizator.ru
 # ---------------------------------------------------------------------------
 
 def _search_calorizator(query: str) -> List[Dict]:
@@ -241,6 +287,7 @@ def _search_calorizator(query: str) -> List[Dict]:
                 'fats': round(fats, 1),
                 'carbohydrates': round(carbs, 1),
                 '_source': 'calorizator',
+                '_categories': '',
             })
     return results
 
@@ -250,20 +297,46 @@ def _search_calorizator(query: str) -> List[Dict]:
 # ---------------------------------------------------------------------------
 
 def _search_local_csv(query: str) -> List[Dict]:
-    """Fallback: search a static CSV file bundled with the project. Very simple fuzzy match.
+    """Search a static CSV file bundled with the project.
+    Uses substring and stem/prefix matching for better recall.
     Expected CSV columns: name,calories,proteins,fats,carbohydrates
     """
     csv_path = os.path.join(os.path.dirname(__file__), 'data', 'fallback_products.csv')
     if not os.path.isfile(csv_path):
         return []
     results = []
-    q = query.lower()
+    q = query.lower().strip()
+    q_tokens = q.split()
     try:
         with open(csv_path, newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 name = row.get('name', '')
-                if q in name.lower():
+                name_lower = name.lower()
+                matched = False
+
+                # Direct substring match
+                if q in name_lower:
+                    matched = True
+                else:
+                    # Token prefix matching: each query token must match
+                    # a prefix (>= 4 chars) of at least one name token
+                    name_tokens = name_lower.split()
+                    all_matched = True
+                    for qt in q_tokens:
+                        token_ok = False
+                        for nt in name_tokens:
+                            cp = _common_prefix_len(qt, nt)
+                            if cp >= min(4, min(len(qt), len(nt))):
+                                token_ok = True
+                                break
+                        if not token_ok:
+                            all_matched = False
+                            break
+                    if all_matched and q_tokens:
+                        matched = True
+
+                if matched:
                     results.append({
                         'name': name[:100],
                         'calories': round(float(row.get('calories', 0)), 1),
@@ -271,6 +344,7 @@ def _search_local_csv(query: str) -> List[Dict]:
                         'fats': round(float(row.get('fats', 0)), 1),
                         'carbohydrates': round(float(row.get('carbohydrates', 0)), 1),
                         '_source': 'local_csv',
+                        '_categories': '',
                     })
     except Exception:
         return []
@@ -313,10 +387,14 @@ _ALL_PROVIDERS = [
     _search_local_csv,
 ]
 
+# Minimum relevance threshold — results below this are discarded
+_MIN_RELEVANCE = 0.05
+
 
 def search_products(query: str) -> List[Dict]:
     """Query ALL providers in parallel, merge results, rank by relevance, deduplicate.
-    Returns the top 30 most relevant matches.
+    Returns the top 30 most relevant matches. Results with zero relevance
+    to the query name are filtered out.
     """
     if not query or len(query.strip()) < 2:
         return []
@@ -338,14 +416,33 @@ def search_products(query: str) -> List[Dict]:
     if not all_results:
         return []
 
+    q_norm = _normalize(query)
+
     # Score each result by relevance to the query
     scored: List[Tuple[float, Dict]] = []
     for item in all_results:
-        score = _relevance_score(query, item.get('name', ''))
+        name = item.get('name', '')
+        score = _relevance_score(query, name)
+
+        # If name doesn't match, check categories (OFF often puts the real
+        # product type there, e.g. "en:potatoes" for картофель-based items)
+        categories = item.get('_categories', '')
+        if score < _MIN_RELEVANCE and categories:
+            cat_score = _relevance_score(query, categories)
+            # Category match is less authoritative than name match
+            score = max(score, cat_score * 0.4)
+
         # Small bonus for items that have actual nutrition data
         if item.get('calories', 0) > 0:
-            score += 0.05
+            score += 0.02
+
         scored.append((score, item))
+
+    # Filter out irrelevant results
+    scored = [(s, item) for s, item in scored if s >= _MIN_RELEVANCE]
+
+    if not scored:
+        return []
 
     # Sort by score descending
     scored.sort(key=lambda x: x[0], reverse=True)
@@ -354,8 +451,9 @@ def search_products(query: str) -> List[Dict]:
     sorted_items = [item for _, item in scored]
     deduped = _deduplicate(sorted_items)
 
-    # Remove internal _source key before returning
+    # Remove internal keys before returning
     for item in deduped:
         item.pop('_source', None)
+        item.pop('_categories', None)
 
     return deduped[:30]
