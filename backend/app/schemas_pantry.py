@@ -8,13 +8,14 @@ class ProductBase(BaseModel):
     proteins: float
     fats: float
     carbohydrates: float
-    is_public: bool = True
+    is_public: bool = False
 
 class ProductCreate(ProductBase):
     pass
 
 class Product(ProductBase):
     id: UUID
+    author_id: Optional[UUID] = None
     class Config:
         from_attributes = True
 

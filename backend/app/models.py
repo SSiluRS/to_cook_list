@@ -24,7 +24,8 @@ class Product(Base):
     proteins = Column(Float)
     fats = Column(Float)
     carbohydrates = Column(Float)
-    is_public = Column(Boolean, default=True)
+    is_public = Column(Boolean, default=False)
+    author_id = Column(String(36), ForeignKey("users.id"), nullable=True)
 
 class Pantry(Base):
     __tablename__ = "pantry"
