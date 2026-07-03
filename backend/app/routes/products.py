@@ -14,7 +14,7 @@ def search_external_products(query: str, current_user: models.User = Depends(aut
         return []
     
     try:
-        encoded_query = urllib.parse.quote(query.strip())
+        encoded_query = urllib.parse.quote_plus(query.strip())
         url = f"https://world.openfoodfacts.org/cgi/search.pl?search_terms={encoded_query}&search_simple=1&action=process&json=1&page_size=20&lc=ru"
         
         req = urllib.request.Request(
