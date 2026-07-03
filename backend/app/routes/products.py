@@ -74,7 +74,12 @@ from sqlalchemy import or_
 
 @router.get("/", response_model=List[schemas_pantry.Product])
 def get_products(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return db.query(models.Product).filter(models.Product.author_id == current_user.id).all()
+    return db.query(models.Product).filter(
+        or_(
+            models.Product.author_id == current_user.id,
+            models.Product.author_id == None
+        )
+    ).all()
 
 @router.post("/", response_model=schemas_pantry.Product)
 def create_product(product: schemas_pantry.ProductCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
