@@ -62,7 +62,7 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
 
   // 6. Go to Recipe details and verify smart matching
   await page.click(`h3:has-text("${recipeName}")`);
-  await expect(page).toHaveURL(/\/recipes\/\d+/);
+  await expect(page).toHaveURL(/\/recipes\/[a-f0-9-]+/);
   await expect(page.getByText('У вас есть все ингредиенты! Можно готовить.')).toBeVisible();
 
   // 7. Schedule the recipe for today
