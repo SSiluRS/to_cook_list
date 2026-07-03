@@ -26,3 +26,17 @@ def update_pantry_item(item: schemas_pantry.PantryCreate, db: Session = Depends(
     db.commit()
     db.refresh(pantry_item)
     return pantry_item
+
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_pantry_item(product_id: str, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    pantry_item = db.query(models.Pantry).filter(
+        models.Pantry.user_id == current_user.id,
+        models.Pantry.product_id == product_id
+    ).first()
+    
+    if not pantry_item:
+        raise HTTPException(status_code=404, detail="Pantry item not found")
+        
+    db.delete(pantry_item)
+    db.commit()
+    return None

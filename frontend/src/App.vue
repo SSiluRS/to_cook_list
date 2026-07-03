@@ -1,5 +1,140 @@
 <template>
-  <div>
-    <h1>Culinary Navigator Frontend</h1>
+  <div class="min-h-screen bg-[#07090b] text-[#f1f5f9] flex">
+    <!-- Sidebar for Authenticated Users -->
+    <aside v-if="authStore.isAuthenticated" class="w-64 glass-panel border-r border-slate-800/40 flex flex-col justify-between shrink-0">
+      <div class="p-6">
+        <!-- App Title / Logo -->
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-10 h-10 rounded-xl gradient-btn flex items-center justify-center shadow-lg shadow-brand-800/20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.044l4.5-2.251m0 0l4.5-2.251m-9 4.502L7.5 15.793m0 0L3 13.541M12 18.044V21m0-2.956L7.5 15.793m0 0v-3.07M12 18.044l4.5-2.251m0-3.071L12 15m0 0L7.5 12.722m4.5 2.278V12m0 0L16.5 9.75M12 12L7.5 9.75M16.5 9.75v-3.07L12 4.43m4.5 2.25L21 4.43m-9 0L7.5 6.68m0 0L3 4.43m4.5 2.25v3.07" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-bold text-lg tracking-wide bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent">To Cook List</h2>
+            <p class="text-xs text-slate-500 font-medium">Culinary Navigator</p>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1">
+          <router-link to="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:text-slate-100 hover:bg-slate-800/30" active-class="bg-slate-800/40 text-brand-400 border border-slate-700/20 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            Dashboard
+          </router-link>
+          
+          <router-link to="/pantry" class="flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:text-slate-100 hover:bg-slate-800/30" active-class="bg-slate-800/40 text-brand-400 border border-slate-700/20 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+            Pantry Stock
+          </router-link>
+
+          <router-link to="/products" class="flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:text-slate-100 hover:bg-slate-800/30" active-class="bg-slate-800/40 text-brand-400 border border-slate-700/20 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75M3.75 10.125v3.75m16.5 0v3.75m-16.5-3.75v3.75" />
+            </svg>
+            KBJU Catalog
+          </router-link>
+
+          <router-link to="/recipes" class="flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:text-slate-100 hover:bg-slate-800/30" active-class="bg-slate-800/40 text-brand-400 border border-slate-700/20 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            Recipes
+          </router-link>
+
+          <router-link to="/menu" class="flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:text-slate-100 hover:bg-slate-800/30" active-class="bg-slate-800/40 text-brand-400 border border-slate-700/20 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+            </svg>
+            Menu Planner
+          </router-link>
+
+          <router-link to="/social" class="flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:text-slate-100 hover:bg-slate-800/30" active-class="bg-slate-800/40 text-brand-400 border border-slate-700/20 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.097-4.012l-.02-.022a11.942 11.942 0 017.227-2.316c2.617 0 5.078.836 7.094 2.262m-10.94-7.82c0 2.485-2.099 4.5-4.688 4.5-2.588 0-4.687-2.015-4.687-4.5S4.812 3 7.5 3s4.688 2.015 4.688 4.5zm8.438 0c0 2.485-2.099 4.5-4.688 4.5-2.588 0-4.687-2.015-4.687-4.5S13.812 3 16.5 3s4.688 2.015 4.688 4.5z" />
+            </svg>
+            Social Board
+          </router-link>
+        </nav>
+      </div>
+
+      <!-- User Profile & Logout -->
+      <div class="p-6 border-t border-slate-800/40 bg-slate-900/10">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-brand-400 border border-slate-700/50">
+            {{ authStore.username ? authStore.username[0].toUpperCase() : 'U' }}
+          </div>
+          <div class="truncate">
+            <p class="text-sm font-semibold text-slate-200">{{ authStore.username || 'User' }}</p>
+            <p class="text-xs text-slate-500 truncate">Logged in</p>
+          </div>
+        </div>
+        <button @click="logout" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-950/30 hover:bg-rose-950/10 transition text-sm font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+          </svg>
+          Log Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main View Area -->
+    <main class="flex-1 flex flex-col min-w-0">
+      <!-- Navbar / Top Header for Authenticated Users -->
+      <header v-if="authStore.isAuthenticated" class="h-16 border-b border-slate-800/30 px-8 flex items-center justify-between glass-panel sticky top-0 z-50">
+        <h1 class="text-lg font-bold bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent capitalize">
+          {{ currentRouteName }}
+        </h1>
+        <div class="text-sm text-slate-400 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Connected to local API
+        </div>
+      </header>
+
+      <!-- Router Content -->
+      <div class="flex-1 p-8 overflow-y-auto">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </div>
+    </main>
   </div>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from './stores/auth'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const currentRouteName = computed(() => {
+  return route.name || 'Dashboard'
+})
+
+const logout = () => {
+  authStore.logout()
+  router.push('/login')
+}
+</script>
+
+<style>
+/* Smooth fade transition for views */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

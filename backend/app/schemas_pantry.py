@@ -28,5 +28,6 @@ class PantryCreate(PantryBase):
 class Pantry(PantryBase):
     id: UUID
     user_id: UUID
+    product: Optional[Product] = None
     class Config:
         from_attributes = True

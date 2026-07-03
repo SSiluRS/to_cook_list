@@ -13,6 +13,9 @@ class User(Base):
     password_hash = Column(String(255))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+    recipes = relationship("Recipe", back_populates="author")
+    pantry_items = relationship("Pantry", back_populates="user")
+
 class Product(Base):
     __tablename__ = "products"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -30,6 +33,9 @@ class Pantry(Base):
     product_id = Column(String(36), ForeignKey("products.id"))
     weight_g = Column(Float)
 
+    user = relationship("User", back_populates="pantry_items")
+    product = relationship("Product")
+
 class Recipe(Base):
     __tablename__ = "recipes"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -39,11 +45,17 @@ class Recipe(Base):
     author_id = Column(String(36), ForeignKey("users.id"))
     is_public = Column(Boolean, default=True)
 
+    author = relationship("User", back_populates="recipes")
+    ingredients = relationship("RecipeIngredient", back_populates="recipe", cascade="all, delete-orphan")
+
 class RecipeIngredient(Base):
     __tablename__ = "recipe_ingredients"
     recipe_id = Column(String(36), ForeignKey("recipes.id"), primary_key=True)
     product_id = Column(String(36), ForeignKey("products.id"), primary_key=True)
     weight_g = Column(Float)
+
+    recipe = relationship("Recipe", back_populates="ingredients")
+    product = relationship("Product")
 
 class MealType(enum.Enum):
     breakfast = "Breakfast"
@@ -59,6 +71,9 @@ class Menu(Base):
     meal_type = Column(Enum(MealType))
     recipe_id = Column(String(36), ForeignKey("recipes.id"))
 
+    user = relationship("User")
+    recipe = relationship("Recipe")
+
 class SharedAccess(Base):
     __tablename__ = "shared_access"
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -66,6 +81,11 @@ class SharedAccess(Base):
     shared_with_id = Column(String(36), ForeignKey("users.id"))
     recipe_id = Column(String(36), ForeignKey("recipes.id"), nullable=True)
     menu_id = Column(String(36), ForeignKey("menu.id"), nullable=True)
+
+    owner = relationship("User", foreign_keys=[owner_id])
+    shared_with = relationship("User", foreign_keys=[shared_with_id])
+    recipe = relationship("Recipe")
+    menu = relationship("Menu")
 
 class RequestStatus(enum.Enum):
     pending = "Pending"
@@ -80,3 +100,8 @@ class CookingRequest(Base):
     recipe_id = Column(String(36), ForeignKey("recipes.id"), nullable=True)
     menu_id = Column(String(36), ForeignKey("menu.id"), nullable=True)
     status = Column(Enum(RequestStatus), default=RequestStatus.pending)
+
+    sender = relationship("User", foreign_keys=[sender_id])
+    receiver = relationship("User", foreign_keys=[receiver_id])
+    recipe = relationship("Recipe")
+    menu = relationship("Menu")
