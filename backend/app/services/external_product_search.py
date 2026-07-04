@@ -389,18 +389,28 @@ _MIN_RELEVANCE = 0.05
 
 def search_products(query: str) -> List[Dict]:
     """Query ALL providers in parallel, merge results, rank by relevance, deduplicate.
-    Returns the top 30 most relevant matches. Results with zero relevance
-    to the query name are filtered out.
+    Returns the top 30 most relevant matches.
+    To prevent 503 errors from external APIs on multi-word queries, we query using
+    the most significant word (longest token) and then apply full query relevance scoring locally.
     """
     if not query or len(query.strip()) < 2:
         return []
 
-    query = query.strip()
+    original_query = query.strip()
+    
+    # Extract the most significant word to send to external APIs
+    tokens = [t for t in _normalize(original_query).split() if len(t) >= 2]
+    if not tokens:
+        return []
+        
+    # Use the longest word as the primary API search term (e.g. "курица" from "курица филе")
+    api_query = max(tokens, key=len)
+    
     all_results: List[Dict] = []
 
-    # Run all providers concurrently
+    # Run all providers concurrently using the optimized api_query
     with ThreadPoolExecutor(max_workers=len(_ALL_PROVIDERS)) as executor:
-        futures = {executor.submit(fn, query): fn.__name__ for fn in _ALL_PROVIDERS}
+        futures = {executor.submit(fn, api_query): fn.__name__ for fn in _ALL_PROVIDERS}
         for future in as_completed(futures):
             try:
                 results = future.result(timeout=10)
@@ -412,23 +422,18 @@ def search_products(query: str) -> List[Dict]:
     if not all_results:
         return []
 
-    q_norm = _normalize(query)
-
-    # Score each result by relevance to the query
+    # Score each result by relevance to the FULL ORIGINAL query
     scored: List[Tuple[float, Dict]] = []
     for item in all_results:
         name = item.get('name', '')
-        score = _relevance_score(query, name)
+        score = _relevance_score(original_query, name)
 
-        # If name doesn't match, check categories (OFF often puts the real
-        # product type there, e.g. "en:potatoes" for картофель-based items)
+        # If name doesn't match, check categories
         categories = item.get('_categories', '')
         if score < _MIN_RELEVANCE and categories:
-            cat_score = _relevance_score(query, categories)
-            # Category match is less authoritative than name match
+            cat_score = _relevance_score(original_query, categories)
             score = max(score, cat_score * 0.4)
 
-        # Small bonus for items that have actual nutrition data
         if item.get('calories', 0) > 0:
             score += 0.02
 
