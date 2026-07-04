@@ -17,6 +17,10 @@ dist/
 dist-ssr/
 *.local
 
+# Capacitor native projects (generated - open in Android Studio / Xcode)
+frontend/android/
+frontend/ios/
+
 # IDEs
 .idea/
 .vscode/
