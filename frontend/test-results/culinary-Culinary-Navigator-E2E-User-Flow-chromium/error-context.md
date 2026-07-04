@@ -14,89 +14,115 @@
 ```
 Error: expect(locator).toContainText(expected) failed
 
-Locator: locator('h1.text-3xl')
+Locator: locator('h1')
 Expected substring: "Привет"
-Timeout: 5000ms
-Error: element(s) not found
+Error: strict mode violation: locator('h1') resolved to 2 elements:
+    1) <h1 class="text-base lg:text-lg font-bold bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent truncate">Панель управления</h1> aka getByRole('heading', { name: 'Панель управления' })
+    2) <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent"> Привет, user_1783167489819! </h1> aka getByRole('heading', { name: 'Привет, user_1783167489819!' })
 
 Call log:
   - Expect "toContainText" with timeout 5000ms
-  - waiting for locator('h1.text-3xl')
+  - waiting for locator('h1')
+    3 × locator resolved to <h1 class="text-base lg:text-lg font-bold bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent truncate">Панель управления</h1>
+      - unexpected value "Панель управления"
 
 ```
 
+# Page snapshot
+
 ```yaml
-- complementary:
-  - img
-  - heading "To Cook List" [level=2]
-  - paragraph: Кулинарный навигатор
-  - navigation:
-    - link "Панель управления":
-      - /url: /dashboard
-      - img
-      - text: Панель управления
-    - link "Моя кладовая":
-      - /url: /pantry
-      - img
-      - text: Моя кладовая
-    - link "Справочник КБЖУ":
-      - /url: /products
-      - img
-      - text: Справочник КБЖУ
-    - link "Рецепты":
-      - /url: /recipes
-      - img
-      - text: Рецепты
-    - link "Планировщик":
-      - /url: /menu
-      - img
-      - text: Планировщик
-    - link "Социальная панель":
-      - /url: /social
-      - img
-      - text: Социальная панель
-  - text: U
-  - paragraph: user_1783167458389
-  - paragraph: В сети
-  - button "Выйти":
-    - img
-    - text: Выйти
-- main:
-  - heading "Панель управления" [level=1]
-  - text: Подключено к API
-  - heading "Привет, user_1783167458389!" [level=1]
-  - paragraph: Вот твой кулинарный обзор на сегодня.
-  - link "Обзор рецептов":
-    - /url: /recipes
-  - link "Планировать меню":
-    - /url: /menu
-  - img
-  - paragraph: Моя кладовая
-  - heading "0" [level=3]
-  - paragraph: Ингредиентов в наличии
-  - img
-  - paragraph: Всего рецептов
-  - heading "1" [level=3]
-  - paragraph: Доступно кулинарных карт
-  - img
-  - paragraph: Блюда на сегодня
-  - heading "0" [level=3]
-  - paragraph: Запланировано на сегодня
-  - img
-  - paragraph: Социальная активность
-  - heading "0" [level=3]
-  - paragraph: Ожидает запросов
-  - heading "Расписание на сегодня" [level=2]:
-    - img
-    - text: Расписание на сегодня
-  - img
-  - paragraph: На сегодня нет запланированных блюд.
-  - link "Запланировать блюдо →":
-    - /url: /menu
-  - heading "Входящие запросы" [level=2]:
-    - img
-    - text: Входящие запросы
-  - paragraph: Нет входящих запросов от других пользователей.
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img [ref=e8]
+        - generic [ref=e10]:
+          - heading "To Cook List" [level=2] [ref=e11]
+          - paragraph [ref=e12]: Кулинарный навигатор
+      - navigation [ref=e13]:
+        - link "Панель управления" [ref=e14] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e15]
+          - text: Панель управления
+        - link "Моя кладовая" [ref=e17] [cursor=pointer]:
+          - /url: /pantry
+          - img [ref=e18]
+          - text: Моя кладовая
+        - link "Справочник КБЖУ" [ref=e20] [cursor=pointer]:
+          - /url: /products
+          - img [ref=e21]
+          - text: Справочник КБЖУ
+        - link "Рецепты" [ref=e23] [cursor=pointer]:
+          - /url: /recipes
+          - img [ref=e24]
+          - text: Рецепты
+        - link "Планировщик" [ref=e26] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e27]
+          - text: Планировщик
+        - link "Социальная панель" [ref=e29] [cursor=pointer]:
+          - /url: /social
+          - img [ref=e30]
+          - text: Социальная панель
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: U
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: user_1783167489819
+          - paragraph [ref=e37]: В сети
+      - button "Выйти" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: Выйти
+  - main [ref=e41]:
+    - generic [ref=e42]:
+      - heading "Панель управления" [level=1] [ref=e43]
+      - generic [ref=e46]: Подключено к API
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - heading "Привет, user_1783167489819!" [level=1] [ref=e51]
+          - paragraph [ref=e52]: Вот твой кулинарный обзор на сегодня.
+        - generic [ref=e53]:
+          - link "Обзор рецептов" [ref=e54] [cursor=pointer]:
+            - /url: /recipes
+          - link "Планировать меню" [ref=e55] [cursor=pointer]:
+            - /url: /menu
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - img [ref=e59]
+          - paragraph [ref=e61]: Моя кладовая
+          - heading "0" [level=3] [ref=e62]
+          - paragraph [ref=e63]: Ингредиентов в наличии
+        - generic [ref=e64]:
+          - img [ref=e66]
+          - paragraph [ref=e68]: Всего рецептов
+          - heading "1" [level=3] [ref=e69]
+          - paragraph [ref=e70]: Доступно кулинарных карт
+        - generic [ref=e71]:
+          - img [ref=e73]
+          - paragraph [ref=e75]: Блюда на сегодня
+          - heading "0" [level=3] [ref=e76]
+          - paragraph [ref=e77]: Запланировано на сегодня
+        - generic [ref=e78]:
+          - img [ref=e80]
+          - paragraph [ref=e82]: Социальная активность
+          - heading "0" [level=3] [ref=e83]
+          - paragraph [ref=e84]: Ожидает запросов
+      - generic [ref=e85]:
+        - generic [ref=e87]:
+          - heading "Расписание на сегодня" [level=2] [ref=e88]:
+            - img [ref=e89]
+            - text: Расписание на сегодня
+          - generic [ref=e91]:
+            - img [ref=e92]
+            - paragraph [ref=e94]: На сегодня нет запланированных блюд.
+            - link "Запланировать блюдо →" [ref=e95] [cursor=pointer]:
+              - /url: /menu
+        - generic [ref=e97]:
+          - heading "Входящие запросы" [level=2] [ref=e98]:
+            - img [ref=e99]
+            - text: Входящие запросы
+          - paragraph [ref=e102]: Нет входящих запросов от других пользователей.
 ```
 
 # Test source
@@ -126,8 +152,8 @@ Call log:
   22  | 
   23  |   // 2. Expect to reach dashboard
   24  |   await expect(page).toHaveURL(/\/dashboard/);
-> 25  |   await expect(page.locator('h1.text-3xl')).toContainText('Привет');
-      |                                             ^ Error: expect(locator).toContainText(expected) failed
+> 25  |   await expect(page.locator('h1')).toContainText('Привет');
+      |                                    ^ Error: expect(locator).toContainText(expected) failed
   26  | 
   27  |   // 3. Create a new product in the catalog
   28  |   await page.click('a[href="/products"]');
