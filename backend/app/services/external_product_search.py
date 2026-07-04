@@ -115,7 +115,7 @@ def _search_openfoodfacts(query: str) -> List[Dict]:
     )
     req = urllib.request.Request(url, headers={'User-Agent': 'CulinaryNavigator/1.0'})
     try:
-        with urllib.request.urlopen(req, timeout=8) as response:
+        with urllib.request.urlopen(req, timeout=4) as response:
             if response.status != 200:
                 return []
             data = json.loads(response.read().decode('utf-8'))
@@ -140,7 +140,7 @@ def _search_openfoodfacts_ru(query: str) -> List[Dict]:
     )
     req = urllib.request.Request(url, headers={'User-Agent': 'CulinaryNavigator/1.0'})
     try:
-        with urllib.request.urlopen(req, timeout=8) as response:
+        with urllib.request.urlopen(req, timeout=4) as response:
             if response.status != 200:
                 return []
             data = json.loads(response.read().decode('utf-8'))
@@ -211,7 +211,7 @@ def _search_usda(query: str) -> List[Dict]:
     url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={encoded}&pageSize=25"
     req = urllib.request.Request(url, headers={'User-Agent': 'CulinaryNavigator/1.0'})
     try:
-        with urllib.request.urlopen(req, timeout=8) as response:
+        with urllib.request.urlopen(req, timeout=4) as response:
             if response.status != 200:
                 return []
             data = json.loads(response.read().decode('utf-8'))
@@ -236,55 +236,6 @@ def _search_usda(query: str) -> List[Dict]:
             '_source': 'usda',
             '_categories': '',
         })
-    return results
-
-
-# ---------------------------------------------------------------------------
-# Provider: Calorizator.ru
-# ---------------------------------------------------------------------------
-
-def _search_calorizator(query: str) -> List[Dict]:
-    """Search calorizator.ru auto-complete endpoint for Russian product КБЖУ data."""
-    if not query:
-        return []
-    encoded = urllib.parse.quote_plus(query.strip())
-    url = f"https://calorizator.ru/ajax/product-search?query={encoded}"
-    req = urllib.request.Request(url, headers={
-        'User-Agent': 'CulinaryNavigator/1.0',
-        'Accept': 'application/json',
-    })
-    try:
-        with urllib.request.urlopen(req, timeout=8) as response:
-            if response.status != 200:
-                return []
-            data = json.loads(response.read().decode('utf-8'))
-    except Exception:
-        return []
-    results = []
-    items = data if isinstance(data, list) else data.get('suggestions', data.get('results', data.get('items', [])))
-    if not isinstance(items, list):
-        return []
-    for item in items:
-        if isinstance(item, dict):
-            name = item.get('name') or item.get('value') or item.get('title', '')
-            if not name:
-                continue
-            try:
-                calories = float(item.get('calories', item.get('cal', 0)) or 0)
-                proteins = float(item.get('proteins', item.get('protein', 0)) or 0)
-                fats = float(item.get('fats', item.get('fat', 0)) or 0)
-                carbs = float(item.get('carbohydrates', item.get('carbs', 0)) or 0)
-            except (ValueError, TypeError):
-                continue
-            results.append({
-                'name': str(name).strip()[:100],
-                'calories': round(calories, 1),
-                'proteins': round(proteins, 1),
-                'fats': round(fats, 1),
-                'carbohydrates': round(carbs, 1),
-                '_source': 'calorizator',
-                '_categories': '',
-            })
     return results
 
 
@@ -379,7 +330,6 @@ _ALL_PROVIDERS = [
     _search_openfoodfacts,
     _search_openfoodfacts_ru,
     _search_usda,
-    _search_calorizator,
     _search_local_csv,
 ]
 
