@@ -41,10 +41,8 @@ def _relevance_score(query: str, name: str) -> float:
 
     Scoring strategy:
     - Exact match → 1.0
-    - Query is a substring of name → 0.6 base
-    - Name starts with query → extra 0.15
-    - Token overlap (Jaccard) → up to 0.4
-    - Stem/prefix overlap per token → up to 0.3
+    - Substring match (either way) → generous base score
+    - Token overlap → reward partial matches based on matching words
     """
     q = _normalize(query)
     n = _normalize(name)
@@ -52,53 +50,51 @@ def _relevance_score(query: str, name: str) -> float:
     if not q or not n:
         return 0.0
 
-    # Exact match
     if q == n:
         return 1.0
 
     score = 0.0
 
-    # Substring bonus: query text appears in the product name
+    # Substring matching
     if q in n:
-        score += 0.6
-        # Extra bonus if name starts with the query
+        score += 0.5
         if n.startswith(q):
-            score += 0.15
+            score += 0.2
     elif n in q:
         score += 0.3
 
-    # Token-based matching
     q_tokens = q.split()
     n_tokens = n.split()
 
     if q_tokens and n_tokens:
-        # Exact token overlap (Jaccard)
+        # Exact token overlap
         q_set = set(q_tokens)
         n_set = set(n_tokens)
         intersection = q_set & n_set
-        union = q_set | n_set
-        if union:
-            jaccard = len(intersection) / len(union)
-            score += 0.4 * jaccard
-
-        # Stem/prefix matching: for each query token, find best prefix match
-        # in name tokens. This catches "картофель" matching "картофельное" etc.
-        if not intersection:
-            prefix_scores = []
-            for qt in q_tokens:
-                best = 0.0
-                for nt in n_tokens:
-                    # Check if one is a prefix of the other (stem match)
+        
+        if intersection:
+            # Reward having any exact matching word (e.g. "филе" in "курица филе")
+            overlap_ratio = len(intersection) / len(q_set)
+            score += 0.4 * overlap_ratio
+        
+        # Stem/prefix matching for words that don't match exactly
+        unmatched_q = q_set - intersection
+        unmatched_n = n_set - intersection
+        
+        if unmatched_q and unmatched_n:
+            prefix_matches = 0
+            for qt in unmatched_q:
+                best_prefix_len = 0
+                for nt in unmatched_n:
                     cp = _common_prefix_len(qt, nt)
                     min_len = min(len(qt), len(nt))
-                    if min_len > 0 and cp >= min(4, min_len):
-                        # Prefix covers at least 4 chars or full shorter word
-                        ratio = cp / max(len(qt), len(nt))
-                        best = max(best, ratio)
-                prefix_scores.append(best)
-            if prefix_scores:
-                avg_prefix = sum(prefix_scores) / len(prefix_scores)
-                score += 0.3 * avg_prefix
+                    if min_len >= 3 and cp >= min(4, min_len):
+                        best_prefix_len = max(best_prefix_len, cp)
+                if best_prefix_len > 0:
+                    prefix_matches += 1
+            
+            if prefix_matches > 0:
+                score += 0.3 * (prefix_matches / len(q_set))
 
     return min(score, 1.0)
 
