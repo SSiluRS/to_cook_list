@@ -1,18 +1,18 @@
 <template>
   <div class="space-y-8">
     <!-- Welcome Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
+        <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
           Привет, {{ authStore.username }}!
         </h1>
-        <p class="text-slate-400 text-sm mt-1">Вот твой кулинарный обзор на сегодня.</p>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">Вот твой кулинарный обзор на сегодня.</p>
       </div>
-      <div class="flex gap-3">
-        <router-link to="/recipes" class="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/40 text-slate-300 hover:text-white hover:bg-slate-800/40 transition text-sm font-semibold flex items-center gap-2">
+      <div class="flex flex-wrap gap-2 sm:gap-3">
+        <router-link to="/recipes" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl border border-slate-800 bg-slate-900/40 text-slate-300 hover:text-white hover:bg-slate-800/40 transition text-xs sm:text-sm font-semibold flex items-center gap-2">
           Обзор рецептов
         </router-link>
-        <router-link to="/menu" class="px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-semibold flex items-center gap-2">
+        <router-link to="/menu" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl gradient-btn text-white text-xs sm:text-sm font-semibold flex items-center gap-2">
           Планировать меню
         </router-link>
       </div>
@@ -21,51 +21,51 @@
     <!-- Quick Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <!-- Pantry Stock -->
-      <div class="p-6 rounded-2xl glass-card relative overflow-hidden">
+      <div class="p-4 sm:p-6 rounded-2xl glass-card relative overflow-hidden">
         <div class="absolute top-4 right-4 text-brand-400/20">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 sm:w-12 sm:h-12">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
           </svg>
         </div>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Моя кладовая</p>
-        <h3 class="text-3xl font-bold mt-2 text-slate-100">{{ pantryCount }}</h3>
+        <h3 class="text-2xl sm:text-3xl font-bold mt-2 text-slate-100">{{ pantryCount }}</h3>
         <p class="text-xs text-slate-400 mt-1">Ингредиентов в наличии</p>
       </div>
 
       <!-- Recipes -->
-      <div class="p-6 rounded-2xl glass-card relative overflow-hidden">
+      <div class="p-4 sm:p-6 rounded-2xl glass-card relative overflow-hidden">
         <div class="absolute top-4 right-4 text-brand-400/20">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 sm:w-12 sm:h-12">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
           </svg>
         </div>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Всего рецептов</p>
-        <h3 class="text-3xl font-bold mt-2 text-slate-100">{{ recipeCount }}</h3>
+        <h3 class="text-2xl sm:text-3xl font-bold mt-2 text-slate-100">{{ recipeCount }}</h3>
         <p class="text-xs text-slate-400 mt-1">Доступно кулинарных карт</p>
       </div>
 
       <!-- Today's Planned Meals -->
-      <div class="p-6 rounded-2xl glass-card relative overflow-hidden">
+      <div class="p-4 sm:p-6 rounded-2xl glass-card relative overflow-hidden">
         <div class="absolute top-4 right-4 text-brand-400/20">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 sm:w-12 sm:h-12">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           </svg>
         </div>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Блюда на сегодня</p>
-        <h3 class="text-3xl font-bold mt-2 text-slate-100">{{ todayMeals.length }}</h3>
+        <h3 class="text-2xl sm:text-3xl font-bold mt-2 text-slate-100">{{ todayMeals.length }}</h3>
         <p class="text-xs text-slate-400 mt-1">Запланировано на сегодня</p>
       </div>
 
       <!-- Pending Social Actions -->
-      <div class="p-6 rounded-2xl glass-card relative overflow-hidden">
+      <div class="p-4 sm:p-6 rounded-2xl glass-card relative overflow-hidden">
         <div class="absolute top-4 right-4 text-brand-400/20">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 sm:w-12 sm:h-12">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477" />
           </svg>
         </div>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Социальная активность</p>
-        <h3 class="text-3xl font-bold mt-2 text-slate-100">{{ pendingRequestsCount }}</h3>
-        <p class="text-xs text-slate-400 mt-1">Ожидает запросов на готовку</p>
+        <h3 class="text-2xl sm:text-3xl font-bold mt-2 text-slate-100">{{ pendingRequestsCount }}</h3>
+        <p class="text-xs text-slate-400 mt-1">Ожидает запросов</p>
       </div>
     </div>
 
@@ -97,12 +97,12 @@
             <div 
               v-for="meal in todayMeals" 
               :key="meal.id"
-              class="p-4 rounded-xl glass-card flex items-center justify-between gap-4"
+              class="p-3 sm:p-4 rounded-xl glass-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
             >
-              <div class="flex items-center gap-4">
+              <div class="flex items-start sm:items-center gap-3 sm:gap-4">
                 <!-- Meal Type Badge -->
                 <span 
-                  class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-center shrink-0 w-24"
+                  class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xxs sm:text-xs font-bold uppercase tracking-wider text-center shrink-0 w-20 sm:w-24"
                   :class="{
                     'bg-amber-500/10 text-amber-400 border border-amber-500/20': meal.meal_type === 'Breakfast',
                     'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20': meal.meal_type === 'Lunch',
@@ -116,8 +116,8 @@
                   <h4 class="font-bold text-slate-200 text-sm hover:text-brand-400 transition">
                     <router-link :to="`/recipes/${meal.recipe_id}`">{{ meal.recipe_title }}</router-link>
                   </h4>
-                  <div v-if="meal.recipe && meal.recipe.total_kbju" class="text-xs text-slate-500 mt-1 flex gap-3 font-medium">
-                    <span>Кал: {{ Math.round(meal.recipe.total_kbju.calories) }} ккал</span>
+                  <div v-if="meal.recipe && meal.recipe.total_kbju" class="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-medium">
+                    <span>Кал: {{ Math.round(meal.recipe.total_kbju.calories) }}</span>
                     <span>Б: {{ meal.recipe.total_kbju.proteins }}г</span>
                     <span>Ж: {{ meal.recipe.total_kbju.fats }}г</span>
                     <span>У: {{ meal.recipe.total_kbju.carbohydrates }}г</span>
@@ -126,7 +126,7 @@
               </div>
               
               <!-- Cooking match badge -->
-              <div v-if="meal.recipe && meal.recipe.smart_match" class="text-right shrink-0">
+              <div v-if="meal.recipe && meal.recipe.smart_match" class="sm:text-right shrink-0 pl-[92px] sm:pl-0">
                 <span 
                   class="px-2.5 py-1 rounded-full text-xs font-semibold"
                   :class="meal.recipe.smart_match.can_cook ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'"

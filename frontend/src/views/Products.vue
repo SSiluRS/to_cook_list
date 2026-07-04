@@ -2,15 +2,15 @@
   <div class="space-y-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
+        <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
           Справочник КБЖУ
         </h1>
-        <p class="text-slate-400 text-sm mt-1">Просматривайте пищевую ценность продуктов (на 100г) или добавляйте свои ингредиенты.</p>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">Просматривайте пищевую ценность продуктов (на 100г) или добавляйте свои ингредиенты.</p>
       </div>
 
       <button 
         @click="showAddDialog = true" 
-        class="px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-semibold flex items-center justify-center gap-2"
+        class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl gradient-btn text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7-7H5" />
@@ -80,12 +80,12 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="border-b border-slate-800/60 bg-slate-900/20 text-xs uppercase tracking-wider font-semibold text-slate-400">
-                <th class="p-4 pl-6">Название продукта</th>
-                <th class="p-4">Калорийность (100г)</th>
-                <th class="p-4">Белки (100г)</th>
-                <th class="p-4">Жиры (100г)</th>
-                <th class="p-4">Углеводы (100г)</th>
-                <th class="p-4 pr-6 text-right">Действие</th>
+                <th class="p-3 sm:p-4 pl-4 sm:pl-6">Название продукта</th>
+                <th class="p-3 sm:p-4 hidden sm:table-cell">Калорийность (100г)</th>
+                <th class="p-3 sm:p-4 hidden md:table-cell">Белки (100г)</th>
+                <th class="p-3 sm:p-4 hidden md:table-cell">Жиры (100г)</th>
+                <th class="p-3 sm:p-4 hidden md:table-cell">Углеводы (100г)</th>
+                <th class="p-3 sm:p-4 pr-4 sm:pr-6 text-right">Действие</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
@@ -94,21 +94,26 @@
                 :key="prod.id"
                 class="hover:bg-slate-900/20 transition-colors"
               >
-                <td class="p-4 pl-6 font-bold text-slate-200">{{ prod.name }}</td>
-                <td class="p-4 font-medium">{{ Math.round(prod.calories) }} ккал</td>
-                <td class="p-4 text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
-                <td class="p-4 text-amber-400 font-semibold">{{ prod.fats }}г</td>
-                <td class="p-4 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
-                <td class="p-4 pr-6 text-right space-x-2">
+                <td class="p-3 sm:p-4 pl-4 sm:pl-6 font-bold text-slate-200">
+                  <div>{{ prod.name }}</div>
+                  <div class="sm:hidden text-xs font-normal text-slate-400 mt-0.5">
+                    {{ Math.round(prod.calories) }} ккал | Б:{{ prod.proteins }} / Ж:{{ prod.fats }} / У:{{ prod.carbohydrates }}
+                  </div>
+                </td>
+                <td class="p-3 sm:p-4 hidden sm:table-cell font-medium">{{ Math.round(prod.calories) }} ккал</td>
+                <td class="p-3 sm:p-4 hidden md:table-cell text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
+                <td class="p-3 sm:p-4 hidden md:table-cell text-amber-400 font-semibold">{{ prod.fats }}г</td>
+                <td class="p-3 sm:p-4 hidden md:table-cell text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
+                <td class="p-3 sm:p-4 pr-4 sm:pr-6 text-right space-x-1 sm:space-x-2">
                   <button 
                     @click="editProduct(prod)"
-                    class="px-3 py-1.5 rounded-lg border border-slate-800 hover:border-brand-500 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 text-xs font-semibold transition"
+                    class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-800 hover:border-brand-500 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 text-xxs sm:text-xs font-semibold transition"
                   >
                     Редактировать
                   </button>
                   <button 
                     @click="deleteProduct(prod.id)"
-                    class="px-3 py-1.5 rounded-lg border border-slate-800 hover:border-rose-950 text-slate-400 hover:text-rose-400 hover:bg-rose-950/15 transition"
+                    class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-800 hover:border-rose-950 text-slate-400 hover:text-rose-400 hover:bg-rose-950/15 text-xxs sm:text-xs transition"
                   >
                     Удалить
                   </button>
@@ -178,12 +183,12 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="border-b border-slate-800/60 bg-slate-900/20 text-xs uppercase tracking-wider font-semibold text-slate-400">
-                <th class="p-4 pl-6">Продукт (из Интернета)</th>
-                <th class="p-4">Калорийность (100г)</th>
-                <th class="p-4">Белки (100г)</th>
-                <th class="p-4">Жиры (100г)</th>
-                <th class="p-4">Углеводы (100г)</th>
-                <th class="p-4 pr-6 text-right">Действие</th>
+                <th class="p-3 sm:p-4 pl-4 sm:pl-6">Продукт (из Интернета)</th>
+                <th class="p-3 sm:p-4 hidden sm:table-cell">Калорийность (100г)</th>
+                <th class="p-3 sm:p-4 hidden md:table-cell">Белки (100г)</th>
+                <th class="p-3 sm:p-4 hidden md:table-cell">Жиры (100г)</th>
+                <th class="p-3 sm:p-4 hidden md:table-cell">Углеводы (100г)</th>
+                <th class="p-3 sm:p-4 pr-4 sm:pr-6 text-right">Действие</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
@@ -192,15 +197,20 @@
                 :key="idx"
                 class="hover:bg-slate-900/20 transition-colors"
               >
-                <td class="p-4 pl-6 font-bold text-slate-200 line-clamp-1 max-w-[280px]" :title="prod.name">{{ prod.name }}</td>
-                <td class="p-4 font-medium">{{ prod.calories }} ккал</td>
-                <td class="p-4 text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
-                <td class="p-4 text-amber-400 font-semibold">{{ prod.fats }}г</td>
-                <td class="p-4 text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
-                <td class="p-4 pr-6 text-right">
+                <td class="p-3 sm:p-4 pl-4 sm:pl-6 font-bold text-slate-200">
+                  <div class="line-clamp-1 max-w-[180px] sm:max-w-[280px]" :title="prod.name">{{ prod.name }}</div>
+                  <div class="sm:hidden text-xs font-normal text-slate-400 mt-0.5">
+                    {{ Math.round(prod.calories) }} ккал | Б:{{ prod.proteins }} / Ж:{{ prod.fats }} / У:{{ prod.carbohydrates }}
+                  </div>
+                </td>
+                <td class="p-3 sm:p-4 hidden sm:table-cell font-medium">{{ prod.calories }} ккал</td>
+                <td class="p-3 sm:p-4 hidden md:table-cell text-emerald-400 font-semibold">{{ prod.proteins }}г</td>
+                <td class="p-3 sm:p-4 hidden md:table-cell text-amber-400 font-semibold">{{ prod.fats }}г</td>
+                <td class="p-3 sm:p-4 hidden md:table-cell text-indigo-400 font-semibold">{{ prod.carbohydrates }}г</td>
+                <td class="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
                   <button 
                     @click="importProduct(prod)"
-                    class="px-3 py-1.5 rounded-lg border border-slate-800 hover:border-brand-500 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 text-xs font-semibold transition"
+                    class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-800 hover:border-brand-500 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 text-xxs sm:text-xs font-semibold transition"
                   >
                     + Добавить
                   </button>
@@ -213,7 +223,7 @@
     </div>
 
     <!-- Create / Edit Product Modal -->
-    <div v-if="showAddDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div v-if="showAddDialog" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 w-full max-w-md sm:max-w-md z-50 animate-fade-in">
       <div class="w-full max-w-md p-6 rounded-2xl glass-panel border border-slate-800/80 shadow-2xl relative">
         <h3 class="text-lg font-bold text-slate-100 mb-4">
           {{ isEditing ? 'Редактировать продукт' : 'Создать/Импортировать продукт' }}

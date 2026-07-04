@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
+        <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 to-slate-300 bg-clip-text text-transparent">
           Моя кладовая
         </h1>
         <p class="text-slate-400 text-sm mt-1">Управляйте ингредиентами, которые есть у вас в наличии на кухне.</p>
@@ -46,11 +46,11 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-800/60 bg-slate-900/20 text-xs uppercase tracking-wider font-semibold text-slate-400">
-              <th class="p-4 pl-6">Название ингредиента</th>
-              <th class="p-4">Калории (100г)</th>
-              <th class="p-4">Б / Ж / У (100г)</th>
-              <th class="p-4 text-center">В наличии</th>
-              <th class="p-4 pr-6 text-right">Действия</th>
+              <th class="p-3 sm:p-4 pl-4 sm:pl-6">Ингредиент</th>
+              <th class="p-3 sm:p-4 hidden md:table-cell">Калории (100г)</th>
+              <th class="p-3 sm:p-4 hidden lg:table-cell">Б / Ж / У (100г)</th>
+              <th class="p-3 sm:p-4 text-center">В наличии</th>
+              <th class="p-3 sm:p-4 pr-4 sm:pr-6 text-right">Действия</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/40 text-sm text-slate-300">
@@ -59,34 +59,32 @@
               :key="item.id" 
               class="hover:bg-slate-900/20 transition-colors"
             >
-              <td class="p-4 pl-6 font-bold text-slate-200">
-                {{ item.product?.name || 'Неизвестный продукт' }}
+              <td class="p-3 sm:p-4 pl-4 sm:pl-6 font-bold text-slate-200">
+                <div>{{ item.product?.name || 'Неизвестный продукт' }}</div>
+                <div class="md:hidden text-xs font-normal text-slate-400 mt-0.5">{{ Math.round(item.product?.calories || 0) }} ккал</div>
               </td>
-              <td class="p-4">
+              <td class="p-3 sm:p-4 hidden md:table-cell">
                 {{ Math.round(item.product?.calories || 0) }} ккал
               </td>
-              <td class="p-4">
+              <td class="p-3 sm:p-4 hidden lg:table-cell">
                 <span class="text-emerald-400 font-medium">Б: {{ item.product?.proteins }}г</span> / 
                 <span class="text-amber-400 font-medium">Ж: {{ item.product?.fats }}г</span> / 
                 <span class="text-indigo-400 font-medium">У: {{ item.product?.carbohydrates }}г</span>
               </td>
-              <td class="p-4">
-                <div class="flex items-center justify-center gap-2">
-                  <!-- Quick adjust weight buttons -->
-                  <button @click="adjustWeight(item, -100)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs transition">-</button>
-                  
+              <td class="p-3 sm:p-4">
+                <div class="flex items-center justify-center gap-1 sm:gap-2">
+                  <button @click="adjustWeight(item, -100)" class="w-6 h-6 sm:w-7 sm:h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs transition">-</button>
                   <input 
                     type="number" 
                     v-model.number="item.weight_g" 
                     @change="updateWeight(item)"
-                    class="w-20 px-2 py-1 text-center rounded bg-slate-950 border border-slate-800 text-xs font-semibold text-white focus:outline-none focus:border-brand-500"
+                    class="w-14 sm:w-20 px-1 sm:px-2 py-1 text-center rounded bg-slate-950 border border-slate-800 text-xs font-semibold text-white focus:outline-none focus:border-brand-500"
                   />
                   <span class="text-xs text-slate-500 font-semibold">г</span>
-                  
-                  <button @click="adjustWeight(item, 100)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs transition">+</button>
+                  <button @click="adjustWeight(item, 100)" class="w-6 h-6 sm:w-7 sm:h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs transition">+</button>
                 </div>
               </td>
-              <td class="p-4 pr-6 text-right">
+              <td class="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
                 <button 
                   @click="deleteItem(item.product_id)"
                   class="p-2 rounded-lg border border-slate-800 hover:border-rose-950 text-slate-500 hover:text-rose-400 hover:bg-rose-950/15 transition-colors"
