@@ -23,7 +23,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      DATABASE_URL: mysql+pymysql://user:password@db:3306/to_cook_list
+      - DATABASE_URL=${DATABASE_URL:-mysql+pymysql://user:password@db:3306/to_cook_list}
     depends_on:
       db:
         condition: service_healthy
