@@ -36,6 +36,10 @@ jobs:
           # APK uses absolute URL — requests go directly to production server
           VITE_API_BASE_URL: https://tocook.ssilurs.ru/api
 
+      - name: Add Capacitor Android platform
+        run: npx cap add android
+        working-directory: frontend
+
       - name: Sync Capacitor Android project
         run: npx cap sync android
         working-directory: frontend
