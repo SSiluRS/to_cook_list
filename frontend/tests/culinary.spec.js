@@ -22,7 +22,7 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
 
   // 2. Expect to reach dashboard
   await expect(page).toHaveURL(/\/dashboard/);
-  await expect(page.locator('h1.text-3xl')).toContainText('Привет');
+  await expect(page.locator('h1')).toContainText('Привет');
 
   // 3. Create a new product in the catalog
   await page.click('a[href="/products"]');

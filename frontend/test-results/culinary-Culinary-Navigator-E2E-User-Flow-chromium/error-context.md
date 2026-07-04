@@ -14,14 +14,14 @@
 ```
 Error: expect(locator).toContainText(expected) failed
 
-Locator: locator('table')
-Expected substring: "Тестовый Банан user_1783093838944"
+Locator: locator('h1.text-3xl')
+Expected substring: "Привет"
 Timeout: 5000ms
 Error: element(s) not found
 
 Call log:
   - Expect "toContainText" with timeout 5000ms
-  - waiting for locator('table')
+  - waiting for locator('h1.text-3xl')
 
 ```
 
@@ -56,39 +56,47 @@ Call log:
       - img
       - text: Социальная панель
   - text: U
-  - paragraph: user_1783093838944
+  - paragraph: user_1783167458389
   - paragraph: В сети
   - button "Выйти":
     - img
     - text: Выйти
 - main:
-  - heading "Справочник КБЖУ" [level=1]
+  - heading "Панель управления" [level=1]
   - text: Подключено к API
-  - heading "Справочник КБЖУ" [level=1]
-  - paragraph: Просматривайте пищевую ценность продуктов (на 100г) или добавляйте свои ингредиенты.
-  - button "Новый продукт":
-    - img
-    - text: Новый продукт
-  - button "Локальный каталог"
-  - button "Поиск в Интернете"
+  - heading "Привет, user_1783167458389!" [level=1]
+  - paragraph: Вот твой кулинарный обзор на сегодня.
+  - link "Обзор рецептов":
+    - /url: /recipes
+  - link "Планировать меню":
+    - /url: /menu
   - img
-  - textbox "Поиск в локальном каталоге..."
-  - text: Не удалось сохранить продукт. Убедитесь, что название уникально.
-  - paragraph: Продукты не найдены
-  - paragraph: Попробуйте изменить поисковый запрос или добавьте новый продукт.
-  - heading "Создать/Импортировать продукт" [level=3]
-  - text: Название продукта
-  - 'textbox "например: Авокадо"': Тестовый Банан user_1783093838944
-  - text: Калорийность (ккал)
-  - spinbutton: "90"
-  - text: Белки (г)
-  - spinbutton: "1.2"
-  - text: Жиры (г)
-  - spinbutton: "0.2"
-  - text: Углеводы (г)
-  - spinbutton: "22"
-  - button "Отмена"
-  - button "Сохранить"
+  - paragraph: Моя кладовая
+  - heading "0" [level=3]
+  - paragraph: Ингредиентов в наличии
+  - img
+  - paragraph: Всего рецептов
+  - heading "1" [level=3]
+  - paragraph: Доступно кулинарных карт
+  - img
+  - paragraph: Блюда на сегодня
+  - heading "0" [level=3]
+  - paragraph: Запланировано на сегодня
+  - img
+  - paragraph: Социальная активность
+  - heading "0" [level=3]
+  - paragraph: Ожидает запросов
+  - heading "Расписание на сегодня" [level=2]:
+    - img
+    - text: Расписание на сегодня
+  - img
+  - paragraph: На сегодня нет запланированных блюд.
+  - link "Запланировать блюдо →":
+    - /url: /menu
+  - heading "Входящие запросы" [level=2]:
+    - img
+    - text: Входящие запросы
+  - paragraph: Нет входящих запросов от других пользователей.
 ```
 
 # Test source
@@ -118,7 +126,8 @@ Call log:
   22  | 
   23  |   // 2. Expect to reach dashboard
   24  |   await expect(page).toHaveURL(/\/dashboard/);
-  25  |   await expect(page.locator('h1.text-3xl')).toContainText('Привет');
+> 25  |   await expect(page.locator('h1.text-3xl')).toContainText('Привет');
+      |                                             ^ Error: expect(locator).toContainText(expected) failed
   26  | 
   27  |   // 3. Create a new product in the catalog
   28  |   await page.click('a[href="/products"]');
@@ -131,8 +140,7 @@ Call log:
   35  |   await page.fill('input[placeholder="8"]', '22');
   36  |   await page.click('form button:has-text("Сохранить")');
   37  |   await page.waitForTimeout(1000); // Wait for modal close and list update
-> 38  |   await expect(page.locator('table')).toContainText(productName);
-      |                                       ^ Error: expect(locator).toContainText(expected) failed
+  38  |   await expect(page.locator('table')).toContainText(productName);
   39  | 
   40  |   // Edit the newly created product
   41  |   await page.click(`tr:has-text("${productName}") button:has-text("Редактировать")`);
@@ -220,5 +228,4 @@ Call log:
   123 |   await page.waitForTimeout(1000);
   124 |   await expect(page.locator('.bg-rose-500\\/10')).toContainText('используется в кладовой или в рецептах');
   125 | });
-  126 | 
 ```
