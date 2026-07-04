@@ -78,7 +78,7 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.click('a[href="/pantry"]');
   await expect(page).toHaveURL(/\/pantry/);
   await page.click('button:has-text("Добавить ингредиент")');
-  await page.selectOption('select', { label: `${productName} (90 ккал/100г)` });
+  await page.selectOption('select', { label: `${productName} (95 ккал/100г)` });
   await page.fill('input[placeholder="например: 500"]', '300');
   await page.click('form button:has-text("Добавить")');
   await page.waitForTimeout(1000);
@@ -91,7 +91,7 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.fill('input[placeholder="например: Авокадо Тост"]', recipeName);
   await page.fill('input[placeholder="например: Простой и полезный завтрак"]', 'Вкусный перекус');
   await page.fill('textarea[placeholder*="хлеб"]', '1. Очистить банан. 2. Нарезать.');
-  await page.selectOption('select', { label: `${productName} (90 ккал/100г)` });
+  await page.selectOption('select', { label: `${productName} (95 ккал/100г)` });
   await page.fill('input[placeholder="Вес (г)"]', '150');
   await page.click('form button:has-text("Сохранить")');
   await page.waitForTimeout(1000);
@@ -118,7 +118,6 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   // 9. Try deleting the product (should fail because it is in use)
   await page.click('a[href="/products"]');
   await expect(page).toHaveURL(/\/products/);
-  page.once('dialog', dialog => dialog.accept());
   await page.click(`tr:has-text("${productName}") button:has-text("Удалить")`);
   await page.waitForTimeout(1000);
   await expect(page.locator('.bg-rose-500\\/10')).toContainText('используется в кладовой или в рецептах');
