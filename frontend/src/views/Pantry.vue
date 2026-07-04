@@ -186,11 +186,17 @@ const availableProducts = computed(() => {
 const loadPantry = async () => {
   loading.value = true
   try {
-    const pantryRes = await api.get('/api/v1/pantry/')
-    pantryItems.value = pantryRes.data
-
     const productsRes = await api.get('/api/v1/products/')
     allProducts.value = productsRes.data
+
+    const pantryRes = await api.get('/api/v1/pantry/')
+    // Ensure each pantry item has its nested product mapped
+    pantryItems.value = pantryRes.data.map(item => {
+      if (!item.product) {
+        item.product = allProducts.value.find(p => p.id === item.product_id)
+      }
+      return item
+    })
   } catch (err) {
     error.value = 'Не удалось загрузить данные кладовой'
   } finally {
