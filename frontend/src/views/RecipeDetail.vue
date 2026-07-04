@@ -145,21 +145,21 @@
               <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Список ингредиентов:</p>
               
               <div 
-                v-for="item in recipe.ingredients" 
-                :key="item.id"
+                v-for="item in recipe.smart_match.ingredients" 
+                :key="item.product_id"
                 class="p-3 rounded-xl bg-slate-900/30 border border-slate-850 flex flex-col gap-1.5"
               >
                 <div class="flex justify-between items-center text-xs">
                   <span class="font-bold text-slate-200">{{ item.product_name }}</span>
-                  <span class="text-slate-400 font-semibold">Нужно: {{ item.weight_g }}г</span>
+                  <span class="text-slate-400 font-semibold">Нужно: {{ item.required_weight_g }}г</span>
                 </div>
                 
                 <!-- Matching details -->
-                <div v-if="item.match_status" class="flex justify-between items-center text-[11px] font-medium border-t border-slate-900 pt-1.5">
-                  <span class="text-slate-500">В наличии: {{ item.match_status.pantry_weight_g }}г</span>
+                <div class="flex justify-between items-center text-[11px] font-medium border-t border-slate-900 pt-1.5">
+                  <span class="text-slate-500">В наличии: {{ item.available_weight_g }}г</span>
                   
                   <span 
-                    v-if="item.match_status.is_sufficient"
+                    v-if="item.is_sufficient"
                     class="text-emerald-400 font-bold uppercase tracking-wider text-[9px]"
                   >
                     В наличии
@@ -168,7 +168,7 @@
                     v-else
                     class="text-rose-400 font-bold uppercase tracking-wider text-[9px]"
                   >
-                    Не хватает: {{ item.match_status.deficit_g }}г
+                    Не хватает: {{ item.missing_weight_g }}г
                   </span>
                 </div>
               </div>

@@ -47,6 +47,7 @@ test('Pantry E2E Persistence Test', async ({ page }) => {
 
   // Verify it exists before reload
   await expect(page.locator('table')).toContainText(productName);
+  await page.screenshot({ path: 'test-results/pantry_added.png', fullPage: true });
   
   // Reload page to verify persistence
   await page.reload();
@@ -63,6 +64,7 @@ test('Pantry E2E Persistence Test', async ({ page }) => {
   await initialWeightInput.fill('750');
   await initialWeightInput.blur();
   await page.waitForTimeout(1500);
+  await page.screenshot({ path: 'test-results/pantry_updated.png', fullPage: true });
 
   // Reload page to verify persistence of edit
   await page.reload();
@@ -75,6 +77,7 @@ test('Pantry E2E Persistence Test', async ({ page }) => {
   const deleteBtn = page.locator('tr').filter({ hasText: productName }).locator('button[title="Удалить из кладовой"]');
   await deleteBtn.click();
   await page.waitForTimeout(1500);
+  await page.screenshot({ path: 'test-results/pantry_deleted.png', fullPage: true });
 
   // Verify it is gone before reload
   await expect(page.locator('body')).not.toContainText(productName);

@@ -101,6 +101,7 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.click(`h3:has-text("${recipeName}")`);
   await expect(page).toHaveURL(/\/recipes\/[a-f0-9-]+/);
   await expect(page.getByText('У вас есть все ингредиенты! Можно готовить.')).toBeVisible();
+  await page.screenshot({ path: 'test-results/recipe_matching.png', fullPage: true });
 
   // 7. Schedule the recipe for today
   await page.click('button:has-text("Запланировать")');
@@ -114,6 +115,7 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.click('a[href="/dashboard"]');
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.getByText(recipeName)).toBeVisible();
+  await page.screenshot({ path: 'test-results/dashboard_scheduled.png', fullPage: true });
 
   // 9. Try deleting the product (should fail because it is in use)
   await page.click('a[href="/products"]');
@@ -121,4 +123,5 @@ test('Culinary Navigator E2E User Flow', async ({ page }) => {
   await page.click(`tr:has-text("${productName}") button:has-text("Удалить")`);
   await page.waitForTimeout(1000);
   await expect(page.locator('.bg-rose-500\\/10')).toContainText('используется в кладовой или в рецептах');
+  await page.screenshot({ path: 'test-results/product_delete_failed.png', fullPage: true });
 });
