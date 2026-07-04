@@ -8,6 +8,12 @@ from .routes.menu import router as menu_router
 from .routes.shares import router as shares_router
 from .routes.cooking_requests import router as cooking_requests_router
 
+from .database import engine, Base
+from . import models
+
+# Create database tables if they do not exist
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 # Configure CORS
