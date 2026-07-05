@@ -26,6 +26,10 @@
             type="text" 
             required 
             placeholder="ivan_ivanov"
+            autocomplete="username"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
             class="w-full px-4 py-3 rounded-xl glass-input text-sm"
           />
         </div>
@@ -37,6 +41,7 @@
             type="email" 
             required 
             placeholder="ivan@example.com"
+            autocomplete="email"
             class="w-full px-4 py-3 rounded-xl glass-input text-sm"
           />
         </div>
@@ -48,6 +53,7 @@
             type="password" 
             required 
             placeholder="••••••••"
+            autocomplete="new-password"
             class="w-full px-4 py-3 rounded-xl glass-input text-sm"
           />
         </div>

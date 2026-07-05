@@ -145,6 +145,9 @@
               v-model="externalQuery" 
               type="text" 
               placeholder="Введите название продукта (например: творог 5%)..."
+              autocorrect="on"
+              autocapitalize="sentences"
+              spellcheck="true"
               class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs font-semibold"
               required
             />
@@ -237,6 +240,9 @@
               type="text" 
               required 
               placeholder="например: Авокадо"
+              autocorrect="on"
+              autocapitalize="sentences"
+              spellcheck="true"
               class="w-full px-4 py-3 rounded-xl glass-input text-sm"
             />
           </div>
