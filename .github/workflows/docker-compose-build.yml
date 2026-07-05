@@ -101,8 +101,13 @@ jobs:
   build_back_tag:
     if: startsWith(github.ref, 'refs/tags/back-v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Lowercase owner
         run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
@@ -127,11 +132,46 @@ jobs:
             ghcr.io/${{ env.OWNER_LC }}/to_cook_list_back:${{ github.ref_name }}
             ghcr.io/${{ env.OWNER_LC }}/to_cook_list_back:latest
 
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | grep '^back-v' | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log --pretty=format:"- %s" -- backend/)
+          else
+            LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" -- backend/)
+          fi
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Backend ${{ github.ref_name }}
+          body: |
+            ### 🐍 Backend — Python / FastAPI
+
+            **Docker образ:** `ghcr.io/${{ env.OWNER_LC }}/to_cook_list_back:${{ github.ref_name }}`
+
+            #### Обновление на сервере:
+            ```bash
+            docker compose pull backend && docker compose up -d backend
+            ```
+
+            #### Изменения с прошлого релиза:
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
   build_front_tag:
     if: startsWith(github.ref, 'refs/tags/front-v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Lowercase owner
         run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
@@ -157,3 +197,34 @@ jobs:
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/to_cook_list_front:${{ github.ref_name }}
             ghcr.io/${{ env.OWNER_LC }}/to_cook_list_front:latest
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | grep '^front-v' | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log --pretty=format:"- %s" -- frontend/src/ frontend/public/ frontend/index.html)
+          else
+            LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" -- frontend/src/ frontend/public/ frontend/index.html)
+          fi
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Frontend ${{ github.ref_name }}
+          body: |
+            ### 🌐 Frontend — Vue 3 / Vite
+
+            **Docker образ:** `ghcr.io/${{ env.OWNER_LC }}/to_cook_list_front:${{ github.ref_name }}`
+
+            #### Обновление на сервере:
+            ```bash
+            docker compose pull frontend && docker compose up -d frontend
+            ```
+
+            #### Изменения с прошлого релиза:
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
