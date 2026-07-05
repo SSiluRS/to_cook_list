@@ -66,48 +66,48 @@ jobs:
         run: chmod +x gradlew
         working-directory: frontend/android
 
-      - name: Build Debug and Release APKs
-        run: ./gradlew assembleDebug assembleRelease --no-daemon
+      - name: Determine APK version name
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "APK_NAME=to_cook_list-${GITHUB_REF_NAME}.apk" >> $GITHUB_OUTPUT
+          else
+            SHORT_SHA=${GITHUB_SHA::7}
+            echo "APK_NAME=to_cook_list-dev-${SHORT_SHA}.apk" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --no-daemon
         working-directory: frontend/android
         env:
           SIGNING_STORE_PASSWORD: tocookpassword
           SIGNING_KEY_ALIAS: to_cook_alias
           SIGNING_KEY_PASSWORD: tocookpassword
 
-      - name: Copy APKs to workspace root
-        run: |
-          cp frontend/android/app/build/outputs/apk/debug/app-debug.apk to_cook_list-debug.apk
-          cp frontend/android/app/build/outputs/apk/release/app-release.apk to_cook_list-release.apk
+      - name: Copy APK to workspace root
+        run: cp frontend/android/app/build/outputs/apk/release/app-release.apk ${{ steps.version.outputs.APK_NAME }}
 
-      - name: Upload APKs as build artifacts
+      - name: Upload APK as build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: to_cook_list-android-apks
-          path: |
-            to_cook_list-debug.apk
-            to_cook_list-release.apk
+          name: to_cook_list-android-apk
+          path: ${{ steps.version.outputs.APK_NAME }}
           retention-days: 14
 
       - name: Create and Upload APK to GitHub Release (only on tags)
         if: startsWith(github.ref, 'refs/tags/android-v')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            to_cook_list-debug.apk
-            to_cook_list-release.apk
-          name: Android APK ${{ github.ref_name }}
+          files: ${{ steps.version.outputs.APK_NAME }}
+          name: Android ${{ github.ref_name }}
           body: |
-            ### To Cook List — Android APK
+            ### 📱 To Cook List — Android
 
             **Версия:** `${{ github.ref_name }}`
 
-            #### Доступные файлы для скачивания:
-            * `to_cook_list-release.apk` — **Подписанная релизная сборка** (оптимизированная по размеру и производительности).
-            * `to_cook_list-debug.apk` — Отладочная сборка.
-
             #### Как установить:
-            1. Скачайте файл `.apk` ниже
+            1. Скачайте файл `${{ steps.version.outputs.APK_NAME }}` ниже
             2. Разрешите установку из неизвестных источников в настройках Android
             3. Откройте скачанный файл и нажмите «Установить»
-            
-            _Подпись сгенерирована и автоматически внедрена в релизный контейнер._
+
+            _Сборка подписана release-ключом и собрана автоматически через GitHub Actions._
