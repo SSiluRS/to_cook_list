@@ -66,34 +66,48 @@ jobs:
         run: chmod +x gradlew
         working-directory: frontend/android
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Build Debug and Release APKs
+        run: ./gradlew assembleDebug assembleRelease --no-daemon
         working-directory: frontend/android
+        env:
+          SIGNING_STORE_PASSWORD: tocookpassword
+          SIGNING_KEY_ALIAS: to_cook_alias
+          SIGNING_KEY_PASSWORD: tocookpassword
 
-      - name: Copy APK to workspace root
-        run: cp frontend/android/app/build/outputs/apk/debug/app-debug.apk to_cook_list-debug.apk
+      - name: Copy APKs to workspace root
+        run: |
+          cp frontend/android/app/build/outputs/apk/debug/app-debug.apk to_cook_list-debug.apk
+          cp frontend/android/app/build/outputs/apk/release/app-release.apk to_cook_list-release.apk
 
-      - name: Upload APK as build artifact
+      - name: Upload APKs as build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: to_cook_list-android-debug
-          path: to_cook_list-debug.apk
+          name: to_cook_list-android-apks
+          path: |
+            to_cook_list-debug.apk
+            to_cook_list-release.apk
           retention-days: 14
 
       - name: Create and Upload APK to GitHub Release (only on tags)
         if: startsWith(github.ref, 'refs/tags/android-v')
         uses: softprops/action-gh-release@v2
         with:
-          files: to_cook_list-debug.apk
+          files: |
+            to_cook_list-debug.apk
+            to_cook_list-release.apk
           name: Android APK ${{ github.ref_name }}
           body: |
             ### To Cook List — Android APK
 
             **Версия:** `${{ github.ref_name }}`
 
+            #### Доступные файлы для скачивания:
+            * `to_cook_list-release.apk` — **Подписанная релизная сборка** (оптимизированная по размеру и производительности).
+            * `to_cook_list-debug.apk` — Отладочная сборка.
+
             #### Как установить:
             1. Скачайте файл `.apk` ниже
             2. Разрешите установку из неизвестных источников в настройках Android
             3. Откройте скачанный файл и нажмите «Установить»
-
-            > ⚠️ Это Debug-сборка. Для публикации в Google Play потребуется Release APK с подписью.
+            
+            _Подпись сгенерирована и автоматически внедрена в релизный контейнер._
