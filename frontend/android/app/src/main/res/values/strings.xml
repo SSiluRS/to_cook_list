@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">To Cook List</string>
+    <string name="title_activity_main">To Cook List</string>
+    <string name="package_name">ru.ssilurs.tocooklist</string>
+    <string name="custom_url_scheme">ru.ssilurs.tocooklist</string>
+</resources>
