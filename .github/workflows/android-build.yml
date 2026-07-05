@@ -75,7 +75,7 @@ jobs:
           path: to_cook_list-debug.apk
           retention-days: 14
 
-      - name: Upload APK to GitHub Release (only on tag)
+      - name: Create and Upload APK to GitHub Release (only on tags)
         if: startsWith(github.ref, 'refs/tags/android-v')
         uses: softprops/action-gh-release@v2
         with:
