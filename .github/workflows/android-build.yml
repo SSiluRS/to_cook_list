@@ -41,7 +41,12 @@ jobs:
           VITE_API_BASE_URL: https://tocook.ssilurs.ru/api
 
       - name: Add Capacitor Android platform
-        run: npx cap add android
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          else
+            echo "Android platform already added in repository, skipping add..."
+          fi
         working-directory: frontend
 
       - name: Sync Capacitor Android project
