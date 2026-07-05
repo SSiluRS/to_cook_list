@@ -144,7 +144,9 @@
             <input 
               v-model="externalQuery" 
               type="text" 
-              inputmode="search"
+              name="q"
+              inputmode="text"
+              enterkeyhint="search"
               placeholder="Введите название продукта (например: творог 5%)..."
               autocorrect="on"
               autocapitalize="sentences"
@@ -239,6 +241,7 @@
             <input 
               v-model="newProduct.name" 
               type="text" 
+              name="product_name"
               inputmode="text"
               required 
               placeholder="например: Авокадо"
@@ -365,11 +368,13 @@ const loadProducts = async () => {
 }
 
 const searchExternal = async () => {
-  if (!externalQuery.value.trim()) return
+  // Snapshot the query value immediately before any async/reactive update can change it
+  const query = externalQuery.value.trim()
+  if (!query) return
   loadingExternal.value = true
   error.value = null
   try {
-    const res = await api.get(`/api/v1/products/search-external?query=${encodeURIComponent(externalQuery.value.trim())}`)
+    const res = await api.get(`/api/v1/products/search-external?query=${encodeURIComponent(query)}`)
     externalProducts.value = res.data
   } catch (err) {
     error.value = 'Ошибка при поиске в базе данных продуктов. Попробуйте еще раз.'
