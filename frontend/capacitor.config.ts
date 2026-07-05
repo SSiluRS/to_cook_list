@@ -6,7 +6,6 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   android: {
     allowMixedContent: false,
-    captureInput: true,
     webContentsDebuggingEnabled: true  // Allows chrome://inspect debugging
   }
 };

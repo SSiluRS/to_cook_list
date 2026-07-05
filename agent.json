@@ -1,0 +1,15 @@
+{
+  "agent_runtime": {
+    "allow_subagent_spawn": true,
+    "trusted_profiles_directory": "./",
+    "delegation_policy": "explicit_manifest_only" 
+  },
+  "permissions": {
+    "tools": {
+      "delegate_task": {
+        "enabled": true,
+        "allowed_targets": ["FrontendQASubagent"]
+      }
+    }
+  }
+}
