@@ -43,6 +43,7 @@ test('Mobile Inputs and Autocomplete Configuration Test', async ({ page }) => {
   await expect(searchInput).toHaveAttribute('autocorrect', 'on');
   await expect(searchInput).toHaveAttribute('spellcheck', 'true');
   await expect(searchInput).toHaveAttribute('autocapitalize', 'sentences');
+  await expect(searchInput).toHaveAttribute('inputmode', 'search');
 
   // Open add dialog and check name input
   await page.click('button:has-text("Новый продукт")');
@@ -50,4 +51,5 @@ test('Mobile Inputs and Autocomplete Configuration Test', async ({ page }) => {
   await expect(addNameInput).toHaveAttribute('autocorrect', 'on');
   await expect(addNameInput).toHaveAttribute('spellcheck', 'true');
   await expect(addNameInput).toHaveAttribute('autocapitalize', 'sentences');
+  await expect(addNameInput).toHaveAttribute('inputmode', 'text');
 });

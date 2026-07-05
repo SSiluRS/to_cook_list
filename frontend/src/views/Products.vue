@@ -144,6 +144,7 @@
             <input 
               v-model="externalQuery" 
               type="text" 
+              inputmode="search"
               placeholder="Введите название продукта (например: творог 5%)..."
               autocorrect="on"
               autocapitalize="sentences"
@@ -238,6 +239,7 @@
             <input 
               v-model="newProduct.name" 
               type="text" 
+              inputmode="text"
               required 
               placeholder="например: Авокадо"
               autocorrect="on"
